@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --background: 222.2 84% 4.9%;
+        --foreground: 210 40% 98%;
+        --card: 217 33% 12%;
+        --card-foreground: 210 40% 98%;
+        --popover: 217 33% 12%;
+        --popover-foreground: 210 40% 98%;
+        --primary: 186 100% 50%;
+        --primary-foreground: 222 47% 11%;
+        --secondary: 217 33% 17%;
+        --secondary-foreground: 210 40% 98%;
+        --muted: 217 33% 17%;
+        --muted-foreground: 215 20.2% 65.1%;
+        --accent: 217 33% 17%;
+        --accent-foreground: 210 40% 98%;
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 217 33% 17%;
+        --input: 217 33% 17%;
+        --ring: 186 100% 50%;
+        --radius: 0.5rem;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+        font-feature-settings: "rlig" 1, "calt" 1;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+    }
+}
+
+@layer utilities {
+    .text-gradient {
+        @apply bg-gradient-to-r from-cyan-400 to-cyan-500 bg-clip-text text-transparent;
+    }
+}
+
+/* Generated Manual Dark Mode Styles */
+.prose-invert h1,
+.prose-invert h2,
+.prose-invert h3,
+.prose-invert h4,
+.prose-invert h5,
+.prose-invert h6 {
+    color: hsl(var(--foreground)) !important;
+}
+
+.prose-invert p,
+.prose-invert span,
+.prose-invert div {
+    color: hsl(var(--foreground)) !important;
+}
+
+.prose-invert ul,
+.prose-invert ol,
+.prose-invert li {
+    color: hsl(var(--foreground)) !important;
+}
+
+.prose-invert strong,
+.prose-invert b {
+    color: hsl(var(--primary)) !important;
+    font-weight: 600;
+}
+
+.prose-invert code {
+    color: hsl(var(--primary)) !important;
+    background-color: hsl(var(--primary) / 0.1) !important;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-secondary;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/30 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
+}

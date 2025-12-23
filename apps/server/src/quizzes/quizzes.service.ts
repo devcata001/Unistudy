@@ -1,0 +1,526 @@
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Logger,
+} from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import { GeminiService } from "../ai/gemini.service";
+import { PromptFactory } from "../ai/prompt.factory";
+import {
+  CreateQuizDto,
+  GenerateQuizDto,
+  SubmitQuizDto,
+  CreateQuizWithQuestionsDto,
+} from "./dto/quiz.dto";
+import { Quiz, QuizDifficulty } from "@prisma/client";
+
+@Injectable()
+export class QuizzesService {
+  private readonly logger = new Logger(QuizzesService.name);
+
+  constructor(
+    private prisma: PrismaService,
+    private gemini: GeminiService,
+    private promptFactory: PromptFactory
+  ) {}
+
+  /**
+   * Generate quiz automatically from materials using AI
+   */
+  async generateQuiz(userId: string, dto: GenerateQuizDto): Promise<Quiz> {
+    // Verify user is enrolled in the course
+    const enrollment = await this.prisma.courseEnrollment.findFirst({
+      where: {
+        userId,
+        courseId: dto.courseId,
+      },
+      include: {
+        course: true,
+      },
+    });
+
+    if (!enrollment) {
+      throw new BadRequestException(
+        "You must be enrolled in this course to generate quizzes"
+      );
+    }
+
+    let content = "";
+
+    // Try to get materials first
+    const materials = await this.prisma.material.findMany({
+      where: {
+        courseId: dto.courseId,
+        ...(dto.materialIds && dto.materialIds.length > 0
+          ? { id: { in: dto.materialIds } }
+          : {}),
+      },
+    });
+
+    // Use materials if available
+    if (materials.length > 0) {
+      content = materials
+        .map((m) => m.extractedText || "")
+        .join("\n\n")
+        .trim();
+    }
+
+    // If no materials or no extractable content, generate from course details
+    if (!content) {
+      this.logger.log(
+        `No materials found, generating quiz from course curriculum: ${enrollment.course.code} - ${enrollment.course.title}`
+      );
+
+      // Create a comprehensive prompt for the AI to generate questions based on standard curriculum
+      content = `You are creating a quiz for a Nigerian university course with the following details:
+
+Course Code: ${enrollment.course.code}
+Course Title: ${enrollment.course.title}
+Department: ${enrollment.course.department}
+Level: ${enrollment.course.level}
+Faculty: ${enrollment.course.faculty || "General"}
+
+Generate ${dto.numQuestions} ${dto.difficulty} level multiple-choice questions that cover the standard topics typically taught in this course at Nigerian universities.
+
+INSTRUCTIONS:
+1. Base questions on the typical curriculum for this course
+2. Cover various topics within this subject area
+3. For science courses: include concepts, formulas, applications, and problem-solving
+4. For humanities: include theories, definitions, historical context, and critical thinking
+5. For technical courses: include practical applications, algorithms, and implementations
+6. Ensure questions are academically rigorous and exam-standard
+7. Include clear explanations for correct answers
+
+Examples of what to cover based on course title:
+- If Physics: mechanics, electricity, magnetism, waves, thermodynamics, optics
+- If Computer Science: programming, data structures, algorithms, databases, networks
+- If Mathematics: calculus, algebra, statistics, geometry, mathematical reasoning
+- If Chemistry: atomic structure, bonding, reactions, stoichiometry, organic chemistry
+- If Biology: cell biology, genetics, ecology, evolution, physiology
+- And so on for other subjects...
+
+Generate questions that test understanding, application, and analysis - not just memorization.`;
+    }
+
+    // Generate quiz using AI
+    const prompt = this.promptFactory.generateQuizPrompt(
+      content,
+      dto.difficulty.toLowerCase(),
+      dto.numQuestions
+    );
+
+    this.logger.log(
+      `Generating quiz with ${dto.numQuestions} questions for course ${dto.courseId}`
+    );
+
+    const aiResponse = await this.gemini.generateText(prompt);
+
+    // Parse AI response (expecting JSON)
+    let questionsData;
+    try {
+      // Extract JSON from markdown code blocks if present
+      const jsonMatch = aiResponse.match(/```json\n?([\s\S]*?)\n?```/);
+      const jsonString = jsonMatch ? jsonMatch[1] : aiResponse;
+      questionsData = JSON.parse(jsonString);
+    } catch (error) {
+      this.logger.error("Failed to parse AI response", error);
+      throw new BadRequestException(
+        "Failed to generate quiz. Please try again."
+      );
+    }
+
+    // Create quiz with questions
+    const quiz = await this.prisma.quiz.create({
+      data: {
+        title: `${enrollment.course.title} - ${dto.difficulty} Quiz`,
+        description: `Auto-generated quiz for ${enrollment.course.title}`,
+        courseId: dto.courseId,
+        difficulty: dto.difficulty,
+        timeLimit: this.getTimeLimit(dto.numQuestions),
+        passingScore: 70,
+        isAutoGenerated: true,
+        questions: {
+          create: questionsData.map((q: any, index: number) => ({
+            question: q.question,
+            questionType: "multiple_choice",
+            explanation: q.explanation,
+            points: 1,
+            order: index + 1,
+            answers: {
+              create: q.answers.map((a: any, aIndex: number) => ({
+                answerText: a.text,
+                isCorrect: a.isCorrect,
+                order: aIndex + 1,
+              })),
+            },
+          })),
+        },
+      },
+      include: {
+        questions: {
+          include: {
+            answers: true,
+          },
+        },
+      },
+    });
+
+    this.logger.log(`Quiz generated successfully: ${quiz.id}`);
+
+    return quiz;
+  }
+
+  /**
+   * Create quiz manually
+   */
+  async createQuiz(dto: CreateQuizWithQuestionsDto): Promise<Quiz> {
+    const quiz = await this.prisma.quiz.create({
+      data: {
+        title: dto.title,
+        description: dto.description,
+        courseId: dto.courseId,
+        difficulty: dto.difficulty || QuizDifficulty.MEDIUM,
+        timeLimit: dto.timeLimit,
+        passingScore: dto.passingScore || 70,
+        isAutoGenerated: false,
+        questions: {
+          create: dto.questions.map((q, index) => ({
+            question: q.question,
+            questionType: q.questionType || "multiple_choice",
+            explanation: q.explanation,
+            points: q.points || 1,
+            order: q.order || index + 1,
+            answers: {
+              create: q.answers.map((a, aIndex) => ({
+                answerText: a.answerText,
+                isCorrect: a.isCorrect,
+                order: a.order || aIndex + 1,
+              })),
+            },
+          })),
+        },
+      },
+      include: {
+        questions: {
+          include: {
+            answers: true,
+          },
+        },
+      },
+    });
+
+    this.logger.log(`Quiz created manually: ${quiz.id}`);
+
+    return quiz;
+  }
+
+  /**
+   * Get quiz by ID (for taking)
+   */
+  async getQuiz(quizId: string, userId: string) {
+    const quiz = await this.prisma.quiz.findUnique({
+      where: { id: quizId },
+      include: {
+        course: true,
+        questions: {
+          include: {
+            answers: {
+              select: {
+                id: true,
+                answerText: true,
+                order: true,
+                // Don't include isCorrect when fetching for taking
+              },
+            },
+          },
+          orderBy: {
+            order: "asc",
+          },
+        },
+      },
+    });
+
+    if (!quiz) {
+      throw new NotFoundException("Quiz not found");
+    }
+
+    // Verify user is enrolled
+    const enrollment = await this.prisma.courseEnrollment.findFirst({
+      where: {
+        userId,
+        courseId: quiz.courseId,
+      },
+    });
+
+    if (!enrollment) {
+      throw new BadRequestException(
+        "You must be enrolled in this course to take this quiz"
+      );
+    }
+
+    return quiz;
+  }
+
+  /**
+   * Submit quiz and calculate score
+   */
+  async submitQuiz(quizId: string, userId: string, dto: SubmitQuizDto) {
+    const startTime = new Date();
+
+    // Get quiz with correct answers
+    const quiz = await this.prisma.quiz.findUnique({
+      where: { id: quizId },
+      include: {
+        questions: {
+          include: {
+            answers: true,
+          },
+        },
+      },
+    });
+
+    if (!quiz) {
+      throw new NotFoundException("Quiz not found");
+    }
+
+    // Calculate score
+    let correctAnswers = 0;
+    const totalQuestions = quiz.questions.length;
+    const weakTopics: string[] = [];
+
+    for (const question of quiz.questions) {
+      const submittedAnswerId = dto.answers[question.id];
+      const correctAnswer = question.answers.find((a) => a.isCorrect);
+
+      if (submittedAnswerId === correctAnswer?.id) {
+        correctAnswers++;
+      } else {
+        // Extract topic from question for weak topic tracking
+        const topic = this.extractTopic(question.question);
+        if (topic) {
+          weakTopics.push(topic);
+        }
+      }
+    }
+
+    const score = (correctAnswers / totalQuestions) * 100;
+    const pointsEarned = this.calculatePoints(score, quiz.difficulty);
+
+    // Save quiz attempt
+    const attempt = await this.prisma.quizAttempt.create({
+      data: {
+        userId,
+        quizId,
+        score,
+        pointsEarned,
+        totalQuestions,
+        correctAnswers,
+        answers: dto.answers,
+        completedAt: new Date(),
+      },
+    });
+
+    // Update user points
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        points: {
+          increment: pointsEarned,
+        },
+      },
+    });
+
+    // Track weak topics
+    if (weakTopics.length > 0) {
+      for (const topic of weakTopics) {
+        await this.prisma.weakTopic.upsert({
+          where: {
+            courseId_topic: {
+              courseId: quiz.courseId,
+              topic,
+            },
+          },
+          create: {
+            courseId: quiz.courseId,
+            topic,
+            incorrectCount: 1,
+          },
+          update: {
+            incorrectCount: {
+              increment: 1,
+            },
+            lastAttemptDate: new Date(),
+          },
+        });
+      }
+    }
+
+    // Update course mastery
+    await this.updateCourseMastery(userId, quiz.courseId);
+
+    this.logger.log(`Quiz submitted: ${attempt.id}, Score: ${score}%`);
+
+    return {
+      attempt,
+      score,
+      correctAnswers,
+      totalQuestions,
+      pointsEarned,
+      passed: score >= quiz.passingScore,
+      weakTopics: weakTopics.filter((v, i, a) => a.indexOf(v) === i), // unique
+    };
+  }
+
+  /**
+   * Get quiz history for user
+   */
+  async getQuizHistory(userId: string, courseId?: string) {
+    const attempts = await this.prisma.quizAttempt.findMany({
+      where: {
+        userId,
+        ...(courseId && {
+          quiz: {
+            courseId,
+          },
+        }),
+      },
+      include: {
+        quiz: {
+          include: {
+            course: true,
+          },
+        },
+      },
+      orderBy: {
+        completedAt: "desc",
+      },
+    });
+
+    // Add the 'passed' field to each attempt based on score and passing score
+    return attempts.map((attempt) => ({
+      ...attempt,
+      passed: attempt.score >= (attempt.quiz?.passingScore || 70),
+    }));
+  }
+
+  /**
+   * Get quizzes for a course
+   */
+  async getCourseQuizzes(courseId: string) {
+    return this.prisma.quiz.findMany({
+      where: { courseId },
+      include: {
+        _count: {
+          select: {
+            questions: true,
+            attempts: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  }
+
+  /**
+   * Get quiz statistics
+   */
+  async getQuizStats(quizId: string) {
+    const attempts = await this.prisma.quizAttempt.findMany({
+      where: { quizId },
+    });
+
+    if (attempts.length === 0) {
+      return {
+        totalAttempts: 0,
+        averageScore: 0,
+        highestScore: 0,
+        lowestScore: 0,
+        passRate: 0,
+      };
+    }
+
+    const scores = attempts.map((a) => a.score);
+    const averageScore = scores.reduce((a, b) => a + b, 0) / scores.length;
+    const quiz = await this.prisma.quiz.findUnique({ where: { id: quizId } });
+    const passedCount = scores.filter(
+      (s) => s >= (quiz?.passingScore || 70)
+    ).length;
+
+    return {
+      totalAttempts: attempts.length,
+      averageScore: Math.round(averageScore * 100) / 100,
+      highestScore: Math.max(...scores),
+      lowestScore: Math.min(...scores),
+      passRate: Math.round((passedCount / attempts.length) * 100),
+    };
+  }
+
+  /**
+   * Helper: Calculate time limit based on number of questions
+   */
+  private getTimeLimit(numQuestions: number): number {
+    // 2 minutes per question
+    return numQuestions * 2;
+  }
+
+  /**
+   * Helper: Calculate points based on score and difficulty
+   */
+  private calculatePoints(score: number, difficulty: QuizDifficulty): number {
+    const basePoints = Math.round(score);
+    const multiplier = {
+      [QuizDifficulty.EASY]: 1,
+      [QuizDifficulty.MEDIUM]: 1.5,
+      [QuizDifficulty.HARD]: 2,
+    };
+
+    return Math.round(basePoints * (multiplier[difficulty] || 1));
+  }
+
+  /**
+   * Helper: Extract topic from question text
+   */
+  private extractTopic(question: string): string | null {
+    // Simple extraction - get first few words
+    const words = question.split(" ").slice(0, 3).join(" ");
+    return words || null;
+  }
+
+  /**
+   * Helper: Update course mastery after quiz
+   */
+  private async updateCourseMastery(
+    userId: string,
+    courseId: string
+  ): Promise<void> {
+    // Get all quiz attempts for this course
+    const attempts = await this.prisma.quizAttempt.findMany({
+      where: {
+        userId,
+        quiz: {
+          courseId,
+        },
+      },
+    });
+
+    if (attempts.length === 0) return;
+
+    // Calculate average score
+    const averageScore =
+      attempts.reduce((sum, a) => sum + a.score, 0) / attempts.length;
+
+    // Update enrollment mastery
+    await this.prisma.courseEnrollment.updateMany({
+      where: {
+        userId,
+        courseId,
+      },
+      data: {
+        masteryPercentage: Math.round(averageScore),
+      },
+    });
+  }
+}

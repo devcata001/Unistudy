@@ -1,0 +1,46 @@
+{
+  "name": "lautech-study-hub",
+  "version": "1.0.0",
+  "description": "AI-powered gamified study platform for LAUTECH students",
+  "private": true,
+  "workspaces": [
+    "apps/web",
+    "apps/server"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:web\"",
+    "dev:server": "cd apps/server && npm run start:dev",
+    "dev:web": "cd apps/web && npm run dev",
+    "build": "npm run build:server && npm run build:web",
+    "build:server": "cd apps/server && npm run build",
+    "build:web": "cd apps/web && npm run build",
+    "start": "concurrently \"npm run start:server\" \"npm run start:web\"",
+    "start:server": "cd apps/server && npm run start:prod",
+    "start:web": "cd apps/web && npm start",
+    "prisma:generate": "cd apps/server && npx prisma generate",
+    "prisma:migrate": "cd apps/server && npx prisma migrate dev",
+    "prisma:studio": "cd apps/server && npx prisma studio",
+    "prisma:seed": "cd apps/server && npx prisma db seed",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\""
+  },
+  "keywords": [
+    "education",
+    "study",
+    "ai",
+    "gamification",
+    "lautech"
+  ],
+  "author": "LAUTECH Study Hub Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.56.0",
+    "prettier": "^3.1.1",
+    "typescript": "^5.3.3"
+  }
+}
