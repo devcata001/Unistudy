@@ -334,25 +334,35 @@ Generate questions that test understanding, application, and analysis - not just
     // Track weak topics
     if (weakTopics.length > 0) {
       for (const topic of weakTopics) {
-        await this.prisma.weakTopic.upsert({
+        // Try to find existing weak topic
+        const existingTopic = await this.prisma.weakTopic.findFirst({
           where: {
-            courseId_topic: {
-              courseId: quiz.courseId,
-              topic,
-            },
-          },
-          create: {
             courseId: quiz.courseId,
             topic,
-            incorrectCount: 1,
-          },
-          update: {
-            incorrectCount: {
-              increment: 1,
-            },
-            lastAttemptDate: new Date(),
           },
         });
+
+        if (existingTopic) {
+          // Update existing
+          await this.prisma.weakTopic.update({
+            where: { id: existingTopic.id },
+            data: {
+              incorrectCount: {
+                increment: 1,
+              },
+              lastAttemptDate: new Date(),
+            },
+          });
+        } else {
+          // Create new
+          await this.prisma.weakTopic.create({
+            data: {
+              courseId: quiz.courseId,
+              topic,
+              incorrectCount: 1,
+            },
+          });
+        }
       }
     }
 
