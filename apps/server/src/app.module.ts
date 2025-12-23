@@ -9,6 +9,7 @@ import { MaterialsModule } from "./materials/materials.module";
 import { AiModule } from "./ai/ai.module";
 import { QuizzesModule } from "./quizzes/quizzes.module";
 import { UniversitiesModule } from "./universities/universities.module";
+import { AdminModule } from "./admin/admin.module";
 // Note: The following modules were deleted during fixing attempts and need to be recreated:
 // - GamificationModule
 // - LeaderboardModule
@@ -40,6 +41,7 @@ import { UniversitiesModule } from "./universities/universities.module";
     AiModule,
     QuizzesModule,
     UniversitiesModule,
+    AdminModule,
     // GamificationModule, // DELETED - needs to be recreated
     // LeaderboardModule, // DELETED - needs to be recreated
     // StudyGroupsModule, // DELETED - needs to be recreated

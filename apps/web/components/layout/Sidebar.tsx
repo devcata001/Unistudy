@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/hooks/useAuth'
 import {
     LayoutDashboard,
     FileText,
@@ -14,6 +15,8 @@ import {
     BookOpen,
     Trophy,
     Settings,
+    Shield,
+    Users,
 } from 'lucide-react'
 
 const navigation = [
@@ -28,8 +31,15 @@ const navigation = [
     { name: 'Manage Courses', href: '/dashboard/courses/manage', icon: Settings },
 ]
 
+const adminNavigation = [
+    { name: 'Admin Dashboard', href: '/dashboard/admin', icon: Shield },
+    { name: 'User Management', href: '/dashboard/admin/users', icon: Users },
+]
+
 export function Sidebar() {
     const pathname = usePathname()
+    const { user } = useAuth()
+    const isAdmin = user?.role === 'ADMIN'
 
     return (
         <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 bg-card border-r border-border">
@@ -64,6 +74,35 @@ export function Sidebar() {
                         </Link>
                     )
                 })}
+
+                {/* Admin Section */}
+                {isAdmin && (
+                    <>
+                        <div className="pt-4 pb-2 px-4">
+                            <p className="text-xs font-semibold text-muted-foreground uppercase">Admin</p>
+                        </div>
+                        {adminNavigation.map((item) => {
+                            const isActive = pathname === item.href
+                            const Icon = item.icon
+
+                            return (
+                                <Link
+                                    key={item.name}
+                                    href={item.href}
+                                    className={cn(
+                                        'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
+                                        isActive
+                                            ? 'bg-red-400/10 text-red-400'
+                                            : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                                    )}
+                                >
+                                    <Icon className="h-5 w-5" />
+                                    {item.name}
+                                </Link>
+                            )
+                        })}
+                    </>
+                )}
             </nav>
         </aside>
     )

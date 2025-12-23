@@ -100,6 +100,7 @@ export interface User {
   university?: string;
   department?: string;
   level?: number;
+  role?: string;
   points: number;
   studyStreak: number;
   isEmailVerified: boolean;
@@ -346,4 +347,78 @@ export const universitiesApi = {
       states: number;
       byState: Record<string, number>;
     }>("/universities/stats"),
+};
+
+// Admin API
+export const adminApi = {
+  login: (username: string, password: string) =>
+    api.post<{
+      access_token: string;
+      admin: { username: string; role: string };
+    }>("/admin/login", { username, password }),
+
+  changePassword: (oldPassword: string, newPassword: string) =>
+    api.post("/admin/change-password", { oldPassword, newPassword }),
+
+  getDashboardStats: () =>
+    api.get<{
+      totalUsers: number;
+      totalCourses: number;
+      totalQuizzes: number;
+      totalMaterials: number;
+      activeUsersToday: number;
+      recentUsers: Array<{
+        id: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        university: string | null;
+        department: string | null;
+        createdAt: string;
+      }>;
+    }>("/admin/dashboard/stats"),
+
+  getAllUsers: (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    role?: string;
+  }) =>
+    api.get<{
+      users: Array<any>;
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    }>("/admin/users", { params }),
+
+  getUserById: (id: string) => api.get<any>(`/admin/users/${id}`),
+
+  updateUserRole: (id: string, role: string) =>
+    api.patch(`/admin/users/${id}/role`, { role }),
+
+  updateUserStatus: (id: string, isActive: boolean) =>
+    api.patch(`/admin/users/${id}/status`, { isActive }),
+
+  deleteUser: (id: string) => api.delete(`/admin/users/${id}`),
+
+  getUserAnalytics: () =>
+    api.get<{
+      usersByDay: Array<{ date: string; count: number }>;
+      usersByRole: Array<{ role: string; _count: number }>;
+      topDepartments: Array<{ department: string; _count: number }>;
+    }>("/admin/analytics/users"),
+
+  getCourseAnalytics: () =>
+    api.get<{
+      totalCourses: number;
+      mostEnrolled: Array<any>;
+    }>("/admin/analytics/courses"),
+
+  getQuizAnalytics: () =>
+    api.get<{
+      totalQuizzes: number;
+      totalAttempts: number;
+      averageScore: number;
+    }>("/admin/analytics/quizzes"),
 };
