@@ -21,13 +21,15 @@ export default function AdminDashboard() {
         setIsAdmin(true)
     }, [router])
 
-    const { data: stats, isLoading } = useQuery({
+    const { data: stats, isLoading, error } = useQuery({
         queryKey: ['admin', 'dashboard', 'stats'],
         queryFn: async () => {
             const response = await adminApi.getDashboardStats()
             return response.data
         },
         enabled: isAdmin,
+        refetchOnMount: true,
+        staleTime: 0,
     })
 
     const { data: userAnalytics } = useQuery({
@@ -37,6 +39,8 @@ export default function AdminDashboard() {
             return response.data
         },
         enabled: isAdmin,
+        refetchOnMount: true,
+        staleTime: 0,
     })
 
     const { data: quizAnalytics } = useQuery({
@@ -46,12 +50,23 @@ export default function AdminDashboard() {
             return response.data
         },
         enabled: isAdmin,
+        refetchOnMount: true,
+        staleTime: 0,
     })
 
     if (!isAdmin) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
                 <p className="text-muted-foreground">Loading...</p>
+            </div>
+        )
+    }
+
+    if (error) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+                <p className="text-red-500">Error loading dashboard data</p>
+                <p className="text-sm text-muted-foreground">{(error as any)?.message}</p>
             </div>
         )
     }

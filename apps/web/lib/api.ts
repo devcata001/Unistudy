@@ -70,6 +70,24 @@ adminApiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Response interceptor for admin API to handle errors
+adminApiClient.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError) => {
+    if (error.response?.status === 401) {
+      // Unauthorized - clear admin tokens and redirect to admin login
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("admin_token");
+        localStorage.removeItem("admin_user");
+        if (!window.location.pathname.startsWith("/admin/login")) {
+          window.location.href = "/admin/login";
+        }
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
