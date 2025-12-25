@@ -45,13 +45,13 @@ export default function AdminDashboard() {
             const response = await adminApi.getQuizAnalytics()
             return response.data
         },
-        enabled: user?.role === 'ADMIN',
+        enabled: isAdmin,
     })
 
-    if (user?.role !== 'ADMIN') {
+    if (!isAdmin) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <p className="text-muted-foreground">Access denied. Admin privileges required.</p>
+                <p className="text-muted-foreground">Loading...</p>
             </div>
         )
     }
