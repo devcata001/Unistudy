@@ -19,7 +19,8 @@ export class AdminGuard implements CanActivate {
       throw new ForbiddenException("User not authenticated");
     }
 
-    if (user.role !== Role.ADMIN) {
+    // Accept both database ADMIN role and SUPER_ADMIN from admin auth
+    if (user.role !== Role.ADMIN && user.role !== "SUPER_ADMIN") {
       throw new ForbiddenException("Access denied. Admin privileges required.");
     }
 
