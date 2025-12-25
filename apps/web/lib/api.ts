@@ -47,6 +47,29 @@ export const api = axios.create({
   },
 });
 
+// Admin API instance with separate auth
+export const adminApiClient = axios.create({
+  baseURL: `${API_URL}/api`,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// Request interceptor for admin API to add admin token
+adminApiClient.interceptors.request.use(
+  (config) => {
+    const adminToken =
+      typeof window !== "undefined"
+        ? localStorage.getItem("admin_token")
+        : null;
+    if (adminToken) {
+      config.headers.Authorization = `Bearer ${adminToken}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
@@ -358,10 +381,10 @@ export const adminApi = {
     }>("/admin/login", { username, password }),
 
   changePassword: (oldPassword: string, newPassword: string) =>
-    api.post("/admin/change-password", { oldPassword, newPassword }),
+    adminApiClient.post("/admin/change-password", { oldPassword, newPassword }),
 
   getDashboardStats: () =>
-    api.get<{
+    adminApiClient.get<{
       totalUsers: number;
       totalCourses: number;
       totalQuizzes: number;
@@ -384,7 +407,7 @@ export const adminApi = {
     search?: string;
     role?: string;
   }) =>
-    api.get<{
+    adminApiClient.get<{
       users: Array<any>;
       total: number;
       page: number;
@@ -392,31 +415,31 @@ export const adminApi = {
       totalPages: number;
     }>("/admin/users", { params }),
 
-  getUserById: (id: string) => api.get<any>(`/admin/users/${id}`),
+  getUserById: (id: string) => adminApiClient.get<any>(`/admin/users/${id}`),
 
   updateUserRole: (id: string, role: string) =>
-    api.patch(`/admin/users/${id}/role`, { role }),
+    adminApiClient.patch(`/admin/users/${id}/role`, { role }),
 
   updateUserStatus: (id: string, isActive: boolean) =>
-    api.patch(`/admin/users/${id}/status`, { isActive }),
+    adminApiClient.patch(`/admin/users/${id}/status`, { isActive }),
 
-  deleteUser: (id: string) => api.delete(`/admin/users/${id}`),
+  deleteUser: (id: string) => adminApiClient.delete(`/admin/users/${id}`),
 
   getUserAnalytics: () =>
-    api.get<{
+    adminApiClient.get<{
       usersByDay: Array<{ date: string; count: number }>;
       usersByRole: Array<{ role: string; _count: number }>;
       topDepartments: Array<{ department: string; _count: number }>;
     }>("/admin/analytics/users"),
 
   getCourseAnalytics: () =>
-    api.get<{
+    adminApiClient.get<{
       totalCourses: number;
       mostEnrolled: Array<any>;
     }>("/admin/analytics/courses"),
 
   getQuizAnalytics: () =>
-    api.get<{
+    adminApiClient.get<{
       totalQuizzes: number;
       totalAttempts: number;
       averageScore: number;

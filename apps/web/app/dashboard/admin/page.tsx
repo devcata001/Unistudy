@@ -4,20 +4,22 @@ import { useQuery } from '@tanstack/react-query'
 import { adminApi } from '@/lib/api'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, BookOpen, FileText, Activity, TrendingUp, Brain } from 'lucide-react'
-import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function AdminDashboard() {
-    const { user } = useAuth()
     const router = useRouter()
+    const [isAdmin, setIsAdmin] = useState(false)
 
-    // Redirect if not admin
+    // Check if admin is logged in
     useEffect(() => {
-        if (user && user.role !== 'ADMIN') {
-            router.push('/dashboard')
+        const adminToken = localStorage.getItem('admin_token')
+        if (!adminToken) {
+            router.push('/admin/login')
+            return
         }
-    }, [user, router])
+        setIsAdmin(true)
+    }, [router])
 
     const { data: stats, isLoading } = useQuery({
         queryKey: ['admin', 'dashboard', 'stats'],
@@ -25,7 +27,7 @@ export default function AdminDashboard() {
             const response = await adminApi.getDashboardStats()
             return response.data
         },
-        enabled: user?.role === 'ADMIN',
+        enabled: isAdmin,
     })
 
     const { data: userAnalytics } = useQuery({
@@ -34,7 +36,7 @@ export default function AdminDashboard() {
             const response = await adminApi.getUserAnalytics()
             return response.data
         },
-        enabled: user?.role === 'ADMIN',
+        enabled: isAdmin,
     })
 
     const { data: quizAnalytics } = useQuery({
