@@ -1,0 +1,66 @@
+# Render Blueprint Configuration
+# This file defines the infrastructure for deploying UniStudy on Render.com
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  # Backend API (NestJS)
+  - type: web
+    name: unistudy-api
+    runtime: node
+    plan: starter # Change to 'standard' or higher for production
+    region: oregon # Change to your preferred region
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        generateValue: true # Render will auto-assign
+      - key: DATABASE_URL
+        sync: false # Add manually in Render dashboard
+      - key: JWT_SECRET
+        sync: false # Add manually - use: openssl rand -base64 32
+      - key: JWT_REFRESH_SECRET
+        sync: false # Add manually - use: openssl rand -base64 32
+      - key: JWT_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: GEMINI_API_KEY
+        sync: false # Add manually from Google AI Studio
+      - key: ALLOWED_ORIGINS
+        sync: false # Add manually: https://your-frontend.vercel.app
+      - key: APP_URL
+        sync: false # Add manually: https://your-frontend.vercel.app
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        sync: false # MUST change in production!
+      - key: ADMIN_EMAIL
+        sync: false # Add manually
+      - key: EMAIL_PROVIDER
+        value: console # Change to smtp/sendgrid/ses for real emails
+      - key: EMAIL_FROM
+        value: noreply@unistudy.ng
+      - key: THROTTLE_TTL
+        value: 60000
+      - key: THROTTLE_LIMIT
+        value: 100
+    autoDeploy: true
+    branch: main
+    rootDir: apps/server
+
+databases:
+  # Note: Render's free PostgreSQL has limitations
+  # For production, use Supabase, Neon, or Railway PostgreSQL
+  # Then add the connection string to DATABASE_URL env var
+  - name: unistudy-db
+    plan: starter # Free tier available
+    databaseName: unistudy
+    user: unistudy
+
+# After deployment:
+# 1. Copy the database connection string from the dashboard
+# 2. Add it to the service's DATABASE_URL environment variable
+# 3. Run migrations: render run npm run prisma:migrate:deploy
