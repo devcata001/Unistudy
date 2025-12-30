@@ -44,6 +44,7 @@ LAUTECH Study Hub is a **production-grade**, AI-powered study platform designed 
 ### Core Features
 
 #### 🔐 Authentication & Authorization
+
 - Email/password authentication with bcrypt hashing
 - Google OAuth 2.0 integration
 - JWT access & refresh tokens
@@ -52,6 +53,7 @@ LAUTECH Study Hub is a **production-grade**, AI-powered study platform designed 
 - Role-based access control (Student, Admin, Moderator)
 
 #### 🎓 Course Management
+
 - Browse available courses by department/faculty
 - Enroll in courses
 - Track mastery percentage per course
@@ -59,6 +61,7 @@ LAUTECH Study Hub is a **production-grade**, AI-powered study platform designed 
 - Course-specific materials and quizzes
 
 #### 📖 Study Materials
+
 - Upload PDFs, images, text files, and documents
 - Automatic text extraction and OCR
 - Material categorization and tagging
@@ -66,6 +69,7 @@ LAUTECH Study Hub is a **production-grade**, AI-powered study platform designed 
 - Material summaries powered by AI
 
 #### 🤖 AI Tutor
+
 - Context-aware responses based on uploaded materials
 - No hallucinations - answers only from your materials
 - Simple → Advanced explanation style
@@ -74,6 +78,7 @@ LAUTECH Study Hub is a **production-grade**, AI-powered study platform designed 
 - LaTeX math rendering
 
 #### 📝 Smart Quizzes
+
 - Auto-generate quizzes from study materials
 - Multiple difficulty levels (Easy, Medium, Hard)
 - Multiple choice and short answer questions
@@ -82,6 +87,7 @@ LAUTECH Study Hub is a **production-grade**, AI-powered study platform designed 
 - Adaptive difficulty based on performance
 
 #### 🎮 Gamification System
+
 - **Points (XP)**: Earn points for study activities
 - **Study Streaks**: Daily streak tracking
 - **Ranks**: Progress from Novice → Learner → Scholar → Expert → Master → Grandmaster
@@ -94,6 +100,7 @@ LAUTECH Study Hub is a **production-grade**, AI-powered study platform designed 
   - 🎓 Course Complete (100% mastery)
 
 #### 🏆 Leaderboard
+
 - Global rankings
 - Department rankings
 - Faculty rankings
@@ -101,6 +108,7 @@ LAUTECH Study Hub is a **production-grade**, AI-powered study platform designed 
 - Real-time updates
 
 #### 👥 Study Groups
+
 - Create public or private groups
 - Invite code system
 - Group admin roles
@@ -109,6 +117,7 @@ LAUTECH Study Hub is a **production-grade**, AI-powered study platform designed 
 - Group activity tracking
 
 #### 📊 Progress Tracking
+
 - Study time analytics
 - Mastery trends per course
 - Session history
@@ -118,6 +127,7 @@ LAUTECH Study Hub is a **production-grade**, AI-powered study platform designed 
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **Framework**: Next.js 14 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
@@ -129,6 +139,7 @@ LAUTECH Study Hub is a **production-grade**, AI-powered study platform designed 
 - **API Client**: Axios
 
 ### Backend
+
 - **Framework**: NestJS 10
 - **Language**: TypeScript
 - **API**: REST
@@ -138,18 +149,21 @@ LAUTECH Study Hub is a **production-grade**, AI-powered study platform designed 
 - **Rate Limiting**: @nestjs/throttler
 
 ### Database
+
 - **Database**: PostgreSQL 15
 - **ORM**: Prisma 5
 - **Migrations**: Prisma Migrate
 - **Seeding**: Prisma Seed
 
 ### AI & ML
+
 - **Text Generation**: Google Gemini Pro
 - **Vision/OCR**: Google Gemini Pro Vision
 - **PDF Processing**: pdf-parse
 - **Image Processing**: Sharp
 
 ### DevOps & Infrastructure
+
 - **Version Control**: Git
 - **Package Manager**: npm
 - **Process Manager**: PM2 (recommended)
@@ -236,6 +250,7 @@ Before you begin, ensure you have the following installed:
 - **Git**: Latest version ([Download](https://git-scm.com/downloads))
 
 ### Optional but Recommended
+
 - **Redis**: For caching and leaderboard ([Download](https://redis.io/download))
 - **Docker**: For containerized development ([Download](https://www.docker.com/))
 
@@ -291,6 +306,7 @@ DATABASE_URL="postgresql://username:password@localhost:5432/lautech_study_hub?sc
 ```
 
 Replace:
+
 - `username`: Your PostgreSQL username
 - `password`: Your PostgreSQL password
 - `localhost:5432`: Your PostgreSQL host and port
@@ -308,11 +324,22 @@ openssl rand -base64 32
 [Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Minimum 0 -Maximum 256 }))
 ```
 
-Update in `.env`:
+Update in `.env` with strong, distinct secrets (do NOT commit .env to git):
 
 ```env
-JWT_SECRET="your-generated-secret-here"
-JWT_REFRESH_SECRET="your-another-generated-secret-here"
+# Example - replace with the output from the commands shown below
+JWT_SECRET="<32+_byte_base64_secret>"
+JWT_REFRESH_SECRET="<32+_byte_base64_secret_different_from_jwt>"
+```
+
+Generate secure secrets (example commands):
+
+```bash
+# Linux / macOS
+openssl rand -base64 32
+
+# Windows (PowerShell)
+[Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Minimum 0 -Maximum 256 }))
 ```
 
 ### 4. Configure Google Gemini API
@@ -407,6 +434,7 @@ npm run dev
 ```
 
 This starts:
+
 - **Backend**: `http://localhost:3001`
 - **Frontend**: `http://localhost:3000` (when created)
 
@@ -449,6 +477,7 @@ Once the backend is running, access the Swagger API documentation:
 ### Available Endpoints
 
 #### Authentication
+
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - Login user
 - `POST /api/auth/refresh` - Refresh access token
@@ -459,21 +488,25 @@ Once the backend is running, access the Swagger API documentation:
 - `GET /api/auth/me` - Get current user
 
 #### Users
+
 - `GET /api/users/profile` - Get user profile
 - `PATCH /api/users/profile` - Update profile
 - `GET /api/users/stats` - Get user statistics
 - `GET /api/users/courses` - Get enrolled courses
 
 #### Courses
+
 - `GET /api/courses` - Get all courses
 - `GET /api/courses/:id` - Get course details
 - `POST /api/courses/:id/enroll` - Enroll in course
 
 #### Materials
+
 - `GET /api/materials/course/:courseId` - Get course materials
 - `POST /api/materials/upload` - Upload material
 
 #### AI
+
 - `POST /api/ai/ask` - Ask AI tutor a question
 
 ## 👨‍💻 Development
@@ -686,6 +719,7 @@ Or join our Discord: [Link]
 ## 🗺️ Roadmap
 
 ### Version 1.0 (Current)
+
 - ✅ Authentication & Authorization
 - ✅ Course Management
 - ✅ Material Upload
@@ -695,6 +729,7 @@ Or join our Discord: [Link]
 - ✅ Leaderboard
 
 ### Version 1.1 (Planned)
+
 - [ ] Real-time chat in study groups
 - [ ] Video call integration
 - [ ] Mobile app (React Native)
@@ -703,6 +738,7 @@ Or join our Discord: [Link]
 - [ ] AI-powered study recommendations
 
 ### Version 2.0 (Future)
+
 - [ ] Virtual study rooms
 - [ ] Live lecture streaming
 - [ ] Peer-to-peer tutoring marketplace

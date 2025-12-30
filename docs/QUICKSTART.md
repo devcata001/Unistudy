@@ -53,9 +53,9 @@ Open `.env` and update these required fields:
 # Database - Update with your PostgreSQL credentials
 DATABASE_URL="postgresql://username:password@localhost:5432/lautech_study_hub"
 
-# JWT Secrets - Generate with: openssl rand -base64 32
-JWT_SECRET="your-secret-here"
-JWT_REFRESH_SECRET="your-refresh-secret-here"
+# JWT secrets - generate and set strong, distinct values (do not check into git)
+JWT_SECRET="<32+_byte_base64_secret>"
+JWT_REFRESH_SECRET="<32+_byte_base64_secret_different_from_JWT_SECRET>"
 
 # Google Gemini API
 GEMINI_API_KEY="your-gemini-api-key"

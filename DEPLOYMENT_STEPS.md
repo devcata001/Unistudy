@@ -74,19 +74,31 @@
 Click "Environment Variables" and add these:
 
 ```env
-DATABASE_URL=postgresql://your-neon-connection-string-here
-JWT_SECRET=your_super_secret_jwt_key_here_minimum_32_chars
-JWT_REFRESH_SECRET=your_super_secret_refresh_key_here_different_from_jwt
-GEMINI_API_KEY=your_google_gemini_api_key_here
+# PostgreSQL connection string format (replace placeholders):
+# postgresql://<DB_USER>:<DB_PASSWORD>@<DB_HOST>:5432/<DB_NAME>
+# If you're using Supabase/Neon, use the project's connection string or the Session Pooler
+# (required on some hosting platforms that only support IPv4).
+DATABASE_URL=postgresql://<db_user>:<db_password>@<db_host>:5432/<db_name>
+
+# JWT secrets - generate strong random values and keep them private
+JWT_SECRET=<generate_a_random_32+_char_secret>
+JWT_REFRESH_SECRET=<generate_a_random_32+_char_secret_different_from_JWT_SECRET>
+
+# Google Gemini (AI) key
+GEMINI_API_KEY=<your_google_gemini_api_key>
+
+# Environment
 NODE_ENV=production
 ```
 
-**Generate secrets:**
+Generate secure secrets locally and copy them into the deployment UI or .env:
 
 ```bash
-# Run these in terminal to generate random secrets:
+# Generate a 32-byte (base64) secret (Linux / macOS)
 openssl rand -base64 32
-openssl rand -base64 32
+
+# On Windows (PowerShell)
+[Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Minimum 0 -Maximum 256 }))
 ```
 
 ### D. Deploy Backend
