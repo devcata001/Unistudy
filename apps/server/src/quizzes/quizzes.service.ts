@@ -42,7 +42,7 @@ export class QuizzesService {
 
     if (!enrollment) {
       throw new BadRequestException(
-        "You must be enrolled in this course to generate quizzes"
+        "Please enroll in this course first to generate quizzes. Go to the course page and click 'Enroll'."
       );
     }
 
@@ -126,7 +126,7 @@ Generate questions that test understanding, application, and analysis - not just
     } catch (error) {
       this.logger.error("Failed to parse AI response", error);
       throw new BadRequestException(
-        "Failed to generate quiz. Please try again."
+        "Unable to generate quiz at this time. Please ensure the course has study materials or try again later."
       );
     }
 

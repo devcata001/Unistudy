@@ -49,7 +49,9 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new ConflictException("User with this email already exists");
+      throw new ConflictException(
+        "This email is already registered. Try logging in or use password reset if you forgot your password."
+      );
     }
 
     if (dto.matricNumber) {
@@ -58,7 +60,9 @@ export class AuthService {
       });
 
       if (existingMatric) {
-        throw new ConflictException("Matric number already registered");
+        throw new ConflictException(
+          "This matric number is already registered. Please contact support if this is an error."
+        );
       }
     }
 
@@ -119,13 +123,15 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException("Invalid credentials");
+      throw new UnauthorizedException(
+        "Email or password is incorrect. Please check your credentials and try again."
+      );
     }
 
     // Check if user registered with OAuth
     if (!user.password) {
       throw new UnauthorizedException(
-        `This account uses ${user.authProvider} authentication. Please login with ${user.authProvider}.`
+        `This account uses ${user.authProvider} sign-in. Please click the "${user.authProvider}" button to continue.`
       );
     }
 
@@ -136,7 +142,9 @@ export class AuthService {
     );
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException("Invalid credentials");
+      throw new UnauthorizedException(
+        "Email or password is incorrect. Please check your credentials and try again."
+      );
     }
 
     this.logger.log(`User logged in: ${user.email}`);
@@ -172,7 +180,9 @@ export class AuthService {
       });
 
       if (!user || user.refreshToken !== refreshToken) {
-        throw new UnauthorizedException("Invalid refresh token");
+        throw new UnauthorizedException(
+          "Your session has expired. Please log in again to continue."
+        );
       }
 
       // Generate new tokens
@@ -183,7 +193,9 @@ export class AuthService {
 
       return tokens;
     } catch (error) {
-      throw new UnauthorizedException("Invalid refresh token");
+      throw new UnauthorizedException(
+        "Your session has expired. Please log in again to continue."
+      );
     }
   }
 
