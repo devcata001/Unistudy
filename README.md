@@ -1,12 +1,13 @@
-# 🎓 LAUTECH Study Hub
+# 🎓 UniStudy
 
-> AI-Powered, Gamified Study Platform for LAUTECH Students
+> Production-Grade AI-Powered Learning Platform for Nigerian Universities
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
 [![NestJS](https://img.shields.io/badge/NestJS-10-red)](https://nestjs.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)](https://www.postgresql.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-5.8-green)](https://www.prisma.io/)
+[![Production Ready](https://img.shields.io/badge/Production-Ready-brightgreen)](#)
 
 ## 📋 Table of Contents
 
@@ -27,64 +28,67 @@
 
 ## 🌟 Overview
 
-LAUTECH Study Hub is a **production-grade**, AI-powered study platform designed specifically for Ladoke Akintola University of Technology (LAUTECH) students. It combines intelligent tutoring, gamification, and collaborative learning to create an engaging educational experience.
+UniStudy is a **world-class**, production-ready AI-powered learning platform built for Nigerian university students. Featuring enterprise-grade architecture, comprehensive security measures, and intelligent features that adapt to individual learning styles.
 
-### Why LAUTECH Study Hub?
+### Why UniStudy Stands Out
 
-- **🤖 AI-Powered Tutoring**: Get instant help from an AI tutor trained on your study materials
-- **📚 Smart Material Management**: Upload and organize PDFs, images, and documents
-- **🎯 Adaptive Quizzes**: Auto-generated quizzes that adapt to your learning level
-- **🏆 Gamification**: Earn points, badges, and compete on leaderboards
-- **👥 Study Groups**: Collaborate with classmates in organized study groups
-- **📊 Progress Tracking**: Detailed analytics on your learning journey
-- **🔥 Daily Streaks**: Stay motivated with streak tracking
+- **🔒 Enterprise Security**: Helmet.js, rate limiting, CSRF protection, input validation
+- **⚡ Performance**: Optimized queries, connection pooling, efficient caching strategies
+- **� Professional Emails**: Beautifully designed transactional emails with HTML templates
+- **� Health Monitoring**: Built-in health check endpoints for uptime monitoring
+- **🚦 Rate Limiting**: Protection against abuse with configurable throttling
+- **� Polished UX**: Toast notifications, loading states, error handling, responsive design
+- **📊 Admin Dashboard**: Real-time analytics and user management
+- **� Dual Authentication**: Separate admin auth system with role-based permissions
+- **🤖 AI-Powered**: Google Gemini Pro integration for intelligent tutoring
+- **� Scalable Architecture**: Modular design ready for horizontal scaling
 
 ## ✨ Features
 
-### Core Features
+### Enterprise Features
 
 #### 🔐 Authentication & Authorization
 
-- Email/password authentication with bcrypt hashing
-- Google OAuth 2.0 integration
-- JWT access & refresh tokens
-- Email verification
-- Password reset functionality
-- Role-based access control (Student, Admin, Moderator)
+- Bcrypt password hashing (12 rounds)
+- JWT access & refresh tokens with secure expiration
+- Email verification with professional HTML templates
+- Password reset with time-limited tokens
+- Rate limiting on auth endpoints
+- Role-based access control (Student, Admin)
+- Session management and token refresh
 
 #### 🎓 Course Management
 
-- Browse available courses by department/faculty
-- Enroll in courses
-- Track mastery percentage per course
-- Identify weak topics automatically
-- Course-specific materials and quizzes
+- Browse courses by department/faculty
+- Enrollment tracking
+- Course mastery metrics
+- Weak topic identification with AI analysis
+- Progress tracking per course
 
 #### 📖 Study Materials
 
-- Upload PDFs, images, text files, and documents
-- Automatic text extraction and OCR
-- Material categorization and tagging
-- Search and filter materials
+- Multi-format support (PDF, images, text, documents)
+- Automatic text extraction and OCR (Gemini Vision)
+- Smart categorization and tagging
+- Full-text search capabilities
 - Material summaries powered by AI
 
 #### 🤖 AI Tutor
 
-- Context-aware responses based on uploaded materials
-- No hallucinations - answers only from your materials
-- Simple → Advanced explanation style
-- Conversation history
-- Support for text and image queries
+- Context-aware responses (no hallucinations)
+- Trained on user-uploaded materials
+- Adaptive explanation complexity
+- Conversation history persistence
+- Text and image query support
 - LaTeX math rendering
 
-#### 📝 Smart Quizzes
-
-- Auto-generate quizzes from study materials
+- Auto-generate quizzes from study materials using AI
 - Multiple difficulty levels (Easy, Medium, Hard)
-- Multiple choice and short answer questions
-- Instant grading and feedback
+- Multiple choice and open-ended questions
+- Instant grading with detailed feedback
 - Quiz history and performance analytics
 - Adaptive difficulty based on performance
+- Quiz completion email notifications
 
 #### 🎮 Gamification System
 
@@ -124,6 +128,35 @@ LAUTECH Study Hub is a **production-grade**, AI-powered study platform designed 
 - Performance insights
 - Visual charts and graphs
 
+#### 📧 Email Service
+
+- Professional HTML email templates
+- Verification emails on registration
+- Password reset with secure tokens
+- Welcome emails for new users
+- Quiz completion notifications
+- Fully customizable templates
+- Console logging (dev) and SMTP support (production)
+
+#### 🛡️ Security & Reliability
+
+- **Rate Limiting**: 100 requests per 60 seconds per IP
+- **Security Headers**: Helmet.js with CSP, XSS protection
+- **Input Validation**: class-validator on all endpoints
+- **CORS**: Configurable allowed origins
+- **Health Monitoring**: `/api/health` endpoint with DB checks
+- **Error Handling**: User-friendly error messages with toast notifications
+- **Session Security**: Secure JWT tokens with refresh rotation
+
+#### 🏥 Health Monitoring
+
+- Real-time health check endpoint (`/api/health`)
+- Database connectivity monitoring
+- Memory usage tracking
+- Uptime statistics
+- Response time metrics
+- Ready for integration with UptimeRobot, Pingdom, or Datadog
+
 ## 🛠️ Tech Stack
 
 ### Frontend
@@ -137,6 +170,8 @@ LAUTECH Study Hub is a **production-grade**, AI-powered study platform designed 
 - **Forms**: React Hook Form + Zod
 - **Charts**: Recharts
 - **API Client**: Axios
+- **Notifications**: Sonner (toast notifications)
+- **UX**: Loading states, error boundaries, responsive design
 
 ### Backend
 
@@ -146,7 +181,10 @@ LAUTECH Study Hub is a **production-grade**, AI-powered study platform designed 
 - **Authentication**: Passport.js + JWT
 - **Validation**: class-validator + class-transformer
 - **Documentation**: Swagger/OpenAPI
-- **Rate Limiting**: @nestjs/throttler
+- **Rate Limiting**: @nestjs/throttler (100 req/60s)
+- **Security**: Helmet.js with CSP
+- **Email**: Professional HTML templates
+- **Monitoring**: Health check endpoints
 
 ### Database
 
@@ -220,6 +258,8 @@ lautech-study-hub/
 │       │   ├── leaderboard/         # Rankings
 │       │   ├── study-groups/        # Group management
 │       │   ├── progress/            # Analytics
+│       │   ├── email/               # ✨ Email service (HTML templates)
+│       │   ├── health/              # ✨ Health check endpoints
 │       │   ├── prisma/              # Prisma service
 │       │   ├── app.module.ts
 │       │   └── main.ts
@@ -366,16 +406,57 @@ GOOGLE_CLIENT_ID="your-client-id"
 GOOGLE_CLIENT_SECRET="your-client-secret"
 ```
 
-### 6. Configure SMTP (Optional - for emails)
+### 6. Configure Email Service (Optional)
 
-Update `.env` with your SMTP settings:
+UniStudy includes a professional email service with beautiful HTML templates. To enable actual email sending (by default, emails are logged to console):
+
+**Using Gmail:**
 
 ```env
+EMAIL_PROVIDER="smtp"
 SMTP_HOST="smtp.gmail.com"
 SMTP_PORT="587"
+SMTP_SECURE="false"
 SMTP_USER="your-email@gmail.com"
 SMTP_PASSWORD="your-app-password"
+SMTP_FROM_NAME="UniStudy"
+SMTP_FROM_EMAIL="noreply@unistudy.com"
 ```
+
+**Using SendGrid:**
+
+```env
+EMAIL_PROVIDER="sendgrid"
+SENDGRID_API_KEY="your-sendgrid-api-key"
+SMTP_FROM_NAME="UniStudy"
+SMTP_FROM_EMAIL="noreply@unistudy.com"
+```
+
+**Using AWS SES:**
+
+```env
+EMAIL_PROVIDER="smtp"
+SMTP_HOST="email-smtp.us-east-1.amazonaws.com"
+SMTP_PORT="587"
+SMTP_USER="your-aws-access-key"
+SMTP_PASSWORD="your-aws-secret-key"
+SMTP_FROM_NAME="UniStudy"
+SMTP_FROM_EMAIL="noreply@unistudy.com"
+```
+
+**Email Templates Included:**
+
+- ✅ Email verification on registration
+- 🔑 Password reset with secure tokens
+- 👋 Welcome emails for new users
+- 🎉 Quiz completion notifications
+
+For Gmail, you need to generate an App Password:
+
+1. Enable 2-factor authentication on your Google account
+2. Go to https://myaccount.google.com/apppasswords
+3. Generate an app password for "Mail"
+4. Use the generated password in `SMTP_PASSWORD`
 
 ## 🗄️ Database Setup
 
@@ -476,14 +557,18 @@ Once the backend is running, access the Swagger API documentation:
 
 ### Available Endpoints
 
+#### Health & Monitoring
+
+- `GET /api/health` - Health check (status, uptime, database, memory)
+
 #### Authentication
 
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login user
+- `POST /api/auth/register` - Register new user (sends verification email)
+- `POST /api/auth/login` - Login user (toast notification)
 - `POST /api/auth/refresh` - Refresh access token
 - `POST /api/auth/logout` - Logout user
 - `POST /api/auth/verify-email` - Verify email
-- `POST /api/auth/forgot-password` - Request password reset
+- `POST /api/auth/forgot-password` - Request password reset (sends email)
 - `POST /api/auth/reset-password` - Reset password
 - `GET /api/auth/me` - Get current user
 
@@ -627,15 +712,65 @@ docker run -d -p 3001:3001 --env-file .env lautech-api
 
 ### Environment Variables for Production
 
-Ensure these are set:
+Ensure these are set in your production environment:
 
 ```env
 NODE_ENV=production
 DATABASE_URL="your-production-db-url"
-JWT_SECRET="secure-secret"
-GEMINI_API_KEY="your-key"
-CORS_ORIGIN="https://your-frontend-domain.com"
+JWT_SECRET="your-secure-secret"
+JWT_REFRESH_SECRET="your-refresh-secret"
+GEMINI_API_KEY="your-gemini-api-key"
+ALLOWED_ORIGINS="https://your-frontend.com,https://www.your-frontend.com"
+
+# Admin credentials (change defaults!)
+ADMIN_EMAIL="admin@yourdomain.com"
+ADMIN_PASSWORD="secure-admin-password"
+
+# Email configuration (optional but recommended)
+EMAIL_PROVIDER="smtp"
+SMTP_HOST="smtp.sendgrid.net"
+SMTP_PORT="587"
+SMTP_USER="apikey"
+SMTP_PASSWORD="your-sendgrid-api-key"
+SMTP_FROM_EMAIL="noreply@yourdomain.com"
+SMTP_FROM_NAME="UniStudy"
+
+# Optional monitoring
+SENTRY_DSN="your-sentry-dsn"  # Error tracking
 ```
+
+### Health Monitoring
+
+Monitor your production app with the `/api/health` endpoint:
+
+```bash
+curl https://your-api.com/api/health
+```
+
+Response:
+
+```json
+{
+  "status": "ok",
+  "uptime": 3600,
+  "database": {
+    "status": "connected",
+    "responseTime": "15ms"
+  },
+  "memory": {
+    "used": "120MB",
+    "total": "512MB",
+    "percentage": "23.4%"
+  }
+}
+```
+
+Integrate with monitoring services:
+
+- **UptimeRobot**: Add health check URL with 5-minute intervals
+- **Pingdom**: Monitor response time and uptime
+- **Datadog**: Track health metrics and alerts
+- **New Relic**: Full APM with health checks
 
 ## 🧪 Testing
 
