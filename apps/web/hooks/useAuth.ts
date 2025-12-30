@@ -11,6 +11,7 @@ import {
   type RegisterDto,
 } from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function useAuth() {
   const router = useRouter();
@@ -24,7 +25,6 @@ export function useAuth() {
     queryKey: ["auth", "me"],
     queryFn: async () => {
       try {
-        // Only fetch user if we have a token
         const token = getAccessToken();
         if (!token) {
           return null;
@@ -33,13 +33,12 @@ export function useAuth() {
         const response = await authApi.getMe();
         return response.data;
       } catch (error) {
-        // If token is invalid, clear it
         clearTokens();
         return null;
       }
     },
     retry: false,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 
   const loginMutation = useMutation({
@@ -48,8 +47,15 @@ export function useAuth() {
       const { user, accessToken, refreshToken } = response.data;
       setTokens(accessToken, refreshToken);
       queryClient.setQueryData(["auth", "me"], user);
+      toast.success(`Welcome back, ${user.firstName}!`);
       router.push("/dashboard");
       router.refresh();
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message ||
+        "Login failed. Please check your credentials.";
+      toast.error(message);
     },
   });
 
@@ -59,8 +65,15 @@ export function useAuth() {
       const { user, accessToken, refreshToken } = response.data;
       setTokens(accessToken, refreshToken);
       queryClient.setQueryData(["auth", "me"], user);
+      toast.success(`Welcome to UniStudy, ${user.firstName}! 🎉`);
       router.push("/dashboard");
       router.refresh();
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message ||
+        "Registration failed. Please try again.";
+      toast.error(message);
     },
   });
 
@@ -70,6 +83,12 @@ export function useAuth() {
       clearTokens();
       queryClient.setQueryData(["auth", "me"], null);
       queryClient.clear();
+      toast.success("Logged out successfully");
+      router.push("/login");
+    },
+    onError: () => {
+      clearTokens();
+      queryClient.setQueryData(["auth", "me"], null);
       router.push("/login");
     },
   });

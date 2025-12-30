@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { QueryProvider } from '@/providers/QueryProvider'
+import { ToastProvider } from '@/providers/ToastProvider'
 import '@/styles/globals.css'
 
 const inter = Inter({
@@ -32,6 +33,7 @@ export default function RootLayout({
             </head>
             <body className={`${inter.className} antialiased`}>
                 <QueryProvider>
+                    <ToastProvider />
                     {children}
                 </QueryProvider>
             </body>
