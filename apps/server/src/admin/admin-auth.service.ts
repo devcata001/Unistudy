@@ -3,35 +3,35 @@ import {
   UnauthorizedException,
   BadRequestException,
 } from "@nestjs/common";
-import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt";
-
-// Store admin credentials (in production, move to database)
-const ADMIN_CREDENTIALS = {
-  username: "cyb3rcatalyst",
-  // Hashed version of 'UTMEscore@336'
-  passwordHash: "$2b$10$YourHashedPasswordWillBeHere", // We'll set this properly
-};
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class AdminAuthService {
-  private adminPassword: string = "UTMEscore@336"; // Store actual password temporarily
+  private adminPassword: string;
 
-  constructor(private jwtService: JwtService) {}
+  constructor(
+    private jwtService: JwtService,
+    private configService: ConfigService
+  ) {
+    this.adminPassword =
+      this.configService.get<string>("ADMIN_PASSWORD") || "changeme";
+  }
 
   async validateAdmin(username: string, password: string): Promise<any> {
-    if (username !== ADMIN_CREDENTIALS.username) {
+    const adminUsername =
+      this.configService.get<string>("ADMIN_USERNAME") || "admin";
+    if (username !== adminUsername) {
       throw new UnauthorizedException("Invalid credentials");
     }
 
-    // Check password
     const isValid = password === this.adminPassword;
     if (!isValid) {
       throw new UnauthorizedException("Invalid credentials");
     }
 
     return {
-      username: ADMIN_CREDENTIALS.username,
+      username: adminUsername,
       role: "SUPER_ADMIN",
     };
   }

@@ -26,11 +26,8 @@ export default function AdminLoginPage() {
 
         try {
             const response = await adminApi.login(formData.username, formData.password)
-            // Store token
             localStorage.setItem('admin_token', response.data.access_token)
             localStorage.setItem('admin_user', JSON.stringify(response.data.admin))
-
-            // Redirect to admin dashboard
             router.push('/dashboard/admin')
         } catch (err: any) {
             setError(err?.response?.data?.message || 'Invalid credentials')

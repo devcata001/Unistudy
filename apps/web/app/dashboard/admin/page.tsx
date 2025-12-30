@@ -11,7 +11,6 @@ export default function AdminDashboard() {
     const router = useRouter()
     const [isAdmin, setIsAdmin] = useState(false)
 
-    // Check if admin is logged in
     useEffect(() => {
         const adminToken = localStorage.getItem('admin_token')
         if (!adminToken) {

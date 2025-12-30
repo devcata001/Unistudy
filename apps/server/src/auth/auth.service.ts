@@ -1,11 +1,24 @@
-import { Injectable, UnauthorizedException, ConflictException, BadRequestException, Logger } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../prisma/prisma.service';
-import { RegisterDto, LoginDto, ForgotPasswordDto, ResetPasswordDto, ChangePasswordDto } from './dto/auth.dto';
-import * as bcrypt from 'bcrypt';
-import { randomBytes } from 'crypto';
-import { User, AuthProvider } from '@prisma/client';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+  BadRequestException,
+  Logger,
+} from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { ConfigService } from "@nestjs/config";
+import { PrismaService } from "../prisma/prisma.service";
+import { EmailService } from "../email/email.service";
+import {
+  RegisterDto,
+  LoginDto,
+  ForgotPasswordDto,
+  ResetPasswordDto,
+  ChangePasswordDto,
+} from "./dto/auth.dto";
+import * as bcrypt from "bcrypt";
+import { randomBytes } from "crypto";
+import { User, AuthProvider } from "@prisma/client";
 
 export interface JwtPayload {
   sub: string;
@@ -27,29 +40,25 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private emailService: EmailService
   ) {}
 
-  /**
-   * Register a new user
-   */
   async register(dto: RegisterDto): Promise<AuthResponse> {
-    // Check if user already exists
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
 
     if (existingUser) {
-      throw new ConflictException('User with this email already exists');
+      throw new ConflictException("User with this email already exists");
     }
 
-    // Check if matric number is already taken
     if (dto.matricNumber) {
       const existingMatric = await this.prisma.user.findUnique({
         where: { matricNumber: dto.matricNumber },
       });
 
       if (existingMatric) {
-        throw new ConflictException('Matric number already registered');
+        throw new ConflictException("Matric number already registered");
       }
     }
 
@@ -80,13 +89,17 @@ export class AuthService {
 
     this.logger.log(`New user registered: ${user.email}`);
 
-    // TODO: Send verification email
-    // await this.emailService.sendVerificationEmail(user.email, emailVerificationToken);
+    await this.emailService
+      .sendVerificationEmail(user.email, emailVerificationToken)
+      .catch((err) => {
+        this.logger.error(
+          `Failed to send verification email to ${user.email}:`,
+          err
+        );
+      });
 
-    // Generate tokens
     const tokens = await this.generateTokens(user);
 
-    // Save refresh token
     await this.saveRefreshToken(user.id, tokens.refreshToken);
 
     return {
@@ -106,21 +119,24 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
     // Check if user registered with OAuth
     if (!user.password) {
       throw new UnauthorizedException(
-        `This account uses ${user.authProvider} authentication. Please login with ${user.authProvider}.`,
+        `This account uses ${user.authProvider} authentication. Please login with ${user.authProvider}.`
       );
     }
 
     // Verify password
-    const isPasswordValid = await this.verifyPassword(dto.password, user.password);
+    const isPasswordValid = await this.verifyPassword(
+      dto.password,
+      user.password
+    );
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
     this.logger.log(`User logged in: ${user.email}`);
@@ -141,11 +157,13 @@ export class AuthService {
   /**
    * Refresh access token
    */
-  async refreshTokens(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
+  async refreshTokens(
+    refreshToken: string
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     try {
       // Verify refresh token
       const payload = this.jwtService.verify(refreshToken, {
-        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+        secret: this.configService.get<string>("JWT_REFRESH_SECRET"),
       });
 
       // Find user
@@ -154,7 +172,7 @@ export class AuthService {
       });
 
       if (!user || user.refreshToken !== refreshToken) {
-        throw new UnauthorizedException('Invalid refresh token');
+        throw new UnauthorizedException("Invalid refresh token");
       }
 
       // Generate new tokens
@@ -165,7 +183,7 @@ export class AuthService {
 
       return tokens;
     } catch (error) {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException("Invalid refresh token");
     }
   }
 
@@ -195,7 +213,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new BadRequestException('Invalid or expired verification token');
+      throw new BadRequestException("Invalid or expired verification token");
     }
 
     await this.prisma.user.update({
@@ -209,7 +227,7 @@ export class AuthService {
 
     this.logger.log(`Email verified for user: ${user.email}`);
 
-    return { message: 'Email verified successfully' };
+    return { message: "Email verified successfully" };
   }
 
   /**
@@ -221,14 +239,12 @@ export class AuthService {
     });
 
     if (!user) {
-      // Don't reveal if user exists
-      return { message: 'If the email exists, a reset link has been sent' };
+      return { message: "If the email exists, a reset link has been sent" };
     }
 
-    // Generate reset token
     const passwordResetToken = this.generateToken();
     const passwordResetExpiry = new Date();
-    passwordResetExpiry.setHours(passwordResetExpiry.getHours() + 1); // 1 hour
+    passwordResetExpiry.setHours(passwordResetExpiry.getHours() + 1);
 
     await this.prisma.user.update({
       where: { id: user.id },
@@ -240,10 +256,16 @@ export class AuthService {
 
     this.logger.log(`Password reset requested for: ${user.email}`);
 
-    // TODO: Send reset email
-    // await this.emailService.sendPasswordResetEmail(user.email, passwordResetToken);
+    await this.emailService
+      .sendPasswordResetEmail(user.email, passwordResetToken)
+      .catch((err) => {
+        this.logger.error(
+          `Failed to send password reset email to ${user.email}:`,
+          err
+        );
+      });
 
-    return { message: 'If the email exists, a reset link has been sent' };
+    return { message: "If the email exists, a reset link has been sent" };
   }
 
   /**
@@ -260,7 +282,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new BadRequestException('Invalid or expired reset token');
+      throw new BadRequestException("Invalid or expired reset token");
     }
 
     // Hash new password
@@ -278,26 +300,32 @@ export class AuthService {
 
     this.logger.log(`Password reset for user: ${user.email}`);
 
-    return { message: 'Password reset successfully' };
+    return { message: "Password reset successfully" };
   }
 
   /**
    * Change password
    */
-  async changePassword(userId: string, dto: ChangePasswordDto): Promise<{ message: string }> {
+  async changePassword(
+    userId: string,
+    dto: ChangePasswordDto
+  ): Promise<{ message: string }> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
 
     if (!user || !user.password) {
-      throw new BadRequestException('Cannot change password');
+      throw new BadRequestException("Cannot change password");
     }
 
     // Verify current password
-    const isPasswordValid = await this.verifyPassword(dto.currentPassword, user.password);
+    const isPasswordValid = await this.verifyPassword(
+      dto.currentPassword,
+      user.password
+    );
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Current password is incorrect');
+      throw new UnauthorizedException("Current password is incorrect");
     }
 
     // Hash new password
@@ -313,7 +341,7 @@ export class AuthService {
 
     this.logger.log(`Password changed for user: ${user.email}`);
 
-    return { message: 'Password changed successfully' };
+    return { message: "Password changed successfully" };
   }
 
   /**
@@ -328,7 +356,9 @@ export class AuthService {
   /**
    * Generate JWT tokens
    */
-  private async generateTokens(user: User): Promise<{ accessToken: string; refreshToken: string }> {
+  private async generateTokens(
+    user: User
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
@@ -336,13 +366,13 @@ export class AuthService {
     };
 
     const accessToken = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>('JWT_SECRET'),
-      expiresIn: this.configService.get<string>('JWT_EXPIRES_IN', '15m'),
+      secret: this.configService.get<string>("JWT_SECRET"),
+      expiresIn: this.configService.get<string>("JWT_EXPIRES_IN", "15m"),
     });
 
     const refreshToken = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-      expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '7d'),
+      secret: this.configService.get<string>("JWT_REFRESH_SECRET"),
+      expiresIn: this.configService.get<string>("JWT_REFRESH_EXPIRES_IN", "7d"),
     });
 
     return { accessToken, refreshToken };
@@ -351,7 +381,10 @@ export class AuthService {
   /**
    * Save refresh token to database
    */
-  private async saveRefreshToken(userId: string, refreshToken: string): Promise<void> {
+  private async saveRefreshToken(
+    userId: string,
+    refreshToken: string
+  ): Promise<void> {
     await this.prisma.user.update({
       where: { id: userId },
       data: { refreshToken },
@@ -369,7 +402,10 @@ export class AuthService {
   /**
    * Verify password
    */
-  private async verifyPassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
+  private async verifyPassword(
+    plainPassword: string,
+    hashedPassword: string
+  ): Promise<boolean> {
     return bcrypt.compare(plainPassword, hashedPassword);
   }
 
@@ -377,14 +413,20 @@ export class AuthService {
    * Generate random token
    */
   private generateToken(): string {
-    return randomBytes(32).toString('hex');
+    return randomBytes(32).toString("hex");
   }
 
   /**
    * Remove sensitive data from user object
    */
   private sanitizeUser(user: User): Partial<User> {
-    const { password, refreshToken, emailVerificationToken, passwordResetToken, ...sanitized } = user;
+    const {
+      password,
+      refreshToken,
+      emailVerificationToken,
+      passwordResetToken,
+      ...sanitized
+    } = user;
     return sanitized;
   }
 }

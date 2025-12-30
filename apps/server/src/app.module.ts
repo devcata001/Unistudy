@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-import { ThrottlerModule } from "@nestjs/throttler";
+import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+import { APP_GUARD } from "@nestjs/core";
 import { PrismaModule } from "./prisma/prisma.module";
 import { AuthModule } from "./auth/auth.module";
 import { UsersModule } from "./users/users.module";
@@ -10,29 +11,23 @@ import { AiModule } from "./ai/ai.module";
 import { QuizzesModule } from "./quizzes/quizzes.module";
 import { UniversitiesModule } from "./universities/universities.module";
 import { AdminModule } from "./admin/admin.module";
-// Note: The following modules were deleted during fixing attempts and need to be recreated:
-// - GamificationModule
-// - LeaderboardModule
-// - StudyGroupsModule
-// - ProgressModule
+import { EmailModule } from "./email/email.module";
+import { HealthModule } from "./health/health.module";
 
 @Module({
   imports: [
-    // Configuration
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ".env",
     }),
 
-    // Rate limiting
     ThrottlerModule.forRoot([
       {
-        ttl: 60000, // 60 seconds
-        limit: 100, // 100 requests per minute
+        ttl: 60000,
+        limit: 100,
       },
     ]),
 
-    // Core modules
     PrismaModule,
     AuthModule,
     UsersModule,
@@ -42,10 +37,14 @@ import { AdminModule } from "./admin/admin.module";
     QuizzesModule,
     UniversitiesModule,
     AdminModule,
-    // GamificationModule, // DELETED - needs to be recreated
-    // LeaderboardModule, // DELETED - needs to be recreated
-    // StudyGroupsModule, // DELETED - needs to be recreated
-    // ProgressModule, // DELETED - needs to be recreated
+    EmailModule,
+    HealthModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}

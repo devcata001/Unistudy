@@ -2,15 +2,12 @@ import axios, { AxiosError } from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
-// Token storage keys
 const ACCESS_TOKEN_KEY = "access_token";
 const REFRESH_TOKEN_KEY = "refresh_token";
 
-// Get tokens from localStorage
 let accessToken: string | null = null;
 let refreshToken: string | null = null;
 
-// Initialize tokens from localStorage on client side
 if (typeof window !== "undefined") {
   accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
   refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
@@ -20,7 +17,6 @@ export const setTokens = (access: string, refresh: string) => {
   accessToken = access;
   refreshToken = refresh;
 
-  // Persist to localStorage
   if (typeof window !== "undefined") {
     localStorage.setItem(ACCESS_TOKEN_KEY, access);
     localStorage.setItem(REFRESH_TOKEN_KEY, refresh);
