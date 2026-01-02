@@ -390,11 +390,11 @@ export default function AdminDashboard() {
                                                 </td>
                                                 <td className="p-3 text-sm text-muted-foreground">{user.email}</td>
                                                 <td className="p-3 text-sm">{user.department}</td>
-                                                <td className="p-3 text-sm">{user.university}</td>
+                                                <td className="p-3 text-sm">{user.university || <span className="text-muted-foreground italic">Not set</span>}</td>
                                                 <td className="p-3">
                                                     <span className={`text-xs px-2 py-1 rounded ${user.role === 'ADMIN'
-                                                            ? 'bg-red-500/10 text-red-500'
-                                                            : 'bg-cyan-500/10 text-cyan-500'
+                                                        ? 'bg-red-500/10 text-red-500'
+                                                        : 'bg-cyan-500/10 text-cyan-500'
                                                         }`}>
                                                         {user.role}
                                                     </span>
