@@ -6,9 +6,36 @@ import { adminApi } from '@/lib/api'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Search, Trash2, Shield, UserX, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, Trash2, Shield, UserX, ChevronLeft, ChevronRight, Eye, Mail, GraduationCap } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+
+interface UserDetails {
+    id: string
+    email: string
+    firstName: string
+    lastName: string
+    department: string
+    faculty: string
+    level: string
+    university: string
+    matricNumber?: string
+    role: string
+    points: number
+    createdAt: string
+    _count?: {
+        courses: number
+        quizAttempts: number
+    }
+}
 
 export default function AdminUsersPage() {
     const { user } = useAuth()
@@ -17,6 +44,8 @@ export default function AdminUsersPage() {
     const [page, setPage] = useState(1)
     const [search, setSearch] = useState('')
     const [roleFilter, setRoleFilter] = useState('')
+    const [selectedUser, setSelectedUser] = useState<UserDetails | null>(null)
+    const [showDetailsDialog, setShowDetailsDialog] = useState(false)
 
     if (user?.role !== 'ADMIN') {
         router.push('/dashboard')
@@ -40,10 +69,10 @@ export default function AdminUsersPage() {
         mutationFn: (userId: string) => adminApi.deleteUser(userId),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
-            alert('User deleted successfully')
+            toast.success('User deleted successfully')
         },
-        onError: () => {
-            alert('Failed to delete user')
+        onError: (error: any) => {
+            toast.error(error?.response?.data?.message || 'Failed to delete user')
         },
     })
 
@@ -52,10 +81,10 @@ export default function AdminUsersPage() {
             adminApi.updateUserRole(userId, role),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
-            alert('User role updated successfully')
+            toast.success('User role updated successfully')
         },
-        onError: () => {
-            alert('Failed to update user role')
+        onError: (error: any) => {
+            toast.error(error?.response?.data?.message || 'Failed to update user role')
         },
     })
 
@@ -70,6 +99,11 @@ export default function AdminUsersPage() {
         if (confirm(`Change user role to ${newRole}?`)) {
             updateRoleMutation.mutate({ userId, role: newRole })
         }
+    }
+
+    const handleViewDetails = (user: UserDetails) => {
+        setSelectedUser(user)
+        setShowDetailsDialog(true)
     }
 
     return (
@@ -194,6 +228,14 @@ export default function AdminUsersPage() {
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
+                                                            onClick={() => handleViewDetails(u)}
+                                                            title="View Details"
+                                                        >
+                                                            <Eye className="h-4 w-4" />
+                                                        </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
                                                             onClick={() => handleChangeRole(u.id, u.role)}
                                                             title={u.role === 'ADMIN' ? 'Demote to Student' : 'Promote to Admin'}
                                                         >
@@ -256,6 +298,78 @@ export default function AdminUsersPage() {
                     )}
                 </CardContent>
             </Card>
+
+            {/* User Details Modal */}
+            {selectedUser && showDetailsDialog && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowDetailsDialog(false)}>
+                    <div className="bg-background rounded-lg p-6 max-w-2xl w-full m-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex justify-between items-start mb-4">
+                            <div>
+                                <h2 className="text-2xl font-bold">{selectedUser.firstName} {selectedUser.lastName}</h2>
+                                <p className="text-muted-foreground">{selectedUser.email}</p>
+                            </div>
+                            <Button variant="ghost" size="sm" onClick={() => setShowDetailsDialog(false)}>✕</Button>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-sm font-medium text-muted-foreground">University</label>
+                                    <p className="text-base mt-1">{selectedUser.university || 'N/A'}</p>
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Department</label>
+                                    <p className="text-base mt-1">{selectedUser.department}</p>
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Faculty</label>
+                                    <p className="text-base mt-1">{selectedUser.faculty}</p>
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Level</label>
+                                    <p className="text-base mt-1">{selectedUser.level}</p>
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Matric Number</label>
+                                    <p className="text-base mt-1">{selectedUser.matricNumber || 'N/A'}</p>
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Role</label>
+                                    <p className="text-base mt-1">
+                                        <span className={`text-xs px-2 py-1 rounded ${selectedUser.role === 'ADMIN' ? 'bg-red-500/10 text-red-500' : 'bg-cyan-500/10 text-cyan-500'}`}>
+                                            {selectedUser.role}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Points</label>
+                                    <p className="text-2xl font-bold text-cyan-400 mt-1">{selectedUser.points}</p>
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Joined</label>
+                                    <p className="text-base mt-1">{new Date(selectedUser.createdAt).toLocaleDateString()}</p>
+                                </div>
+                            </div>
+
+                            {selectedUser._count && (
+                                <div className="border-t pt-4 mt-4">
+                                    <h3 className="font-semibold mb-3">Activity Statistics</h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-sm font-medium text-muted-foreground">Enrolled Courses</label>
+                                            <p className="text-2xl font-bold">{selectedUser._count.courses}</p>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-muted-foreground">Quiz Attempts</label>
+                                            <p className="text-2xl font-bold">{selectedUser._count.quizAttempts}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
