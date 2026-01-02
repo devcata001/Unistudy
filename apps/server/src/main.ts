@@ -25,7 +25,11 @@ async function bootstrap() {
 
   const allowedOrigins = configService
     .get<string>("ALLOWED_ORIGINS")
-    ?.split(",") || ["http://localhost:3000", "http://localhost:3001"];
+    ?.split(",") || [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://unistudynaija.vercel.app",
+  ];
 
   app.enableCors({
     origin: nodeEnv === "production" ? allowedOrigins : true,
