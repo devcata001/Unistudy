@@ -10,13 +10,6 @@ import { Search, Trash2, Shield, UserX, ChevronLeft, ChevronRight, Eye, Mail, Gr
 import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
 
 interface UserDetails {
     id: string
