@@ -1,15 +1,43 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { adminApi } from '@/lib/api'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Users, BookOpen, FileText, Activity, TrendingUp, Brain } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Users, BookOpen, FileText, Activity, TrendingUp, Brain, Search, Trash2, Shield, UserX, ChevronLeft, ChevronRight, Eye } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+
+interface UserDetails {
+    id: string
+    email: string
+    firstName: string
+    lastName: string
+    department: string
+    faculty: string
+    level: string
+    university: string
+    matricNumber?: string
+    role: string
+    points: number
+    createdAt: string
+    _count?: {
+        courses: number
+        quizAttempts: number
+    }
+}
 
 export default function AdminDashboard() {
     const router = useRouter()
+    const queryClient = useQueryClient()
     const [isAdmin, setIsAdmin] = useState(false)
+    const [page, setPage] = useState(1)
+    const [search, setSearch] = useState('')
+    const [roleFilter, setRoleFilter] = useState('')
+    const [selectedUser, setSelectedUser] = useState<UserDetails | null>(null)
+    const [showDetailsDialog, setShowDetailsDialog] = useState(false)
 
     useEffect(() => {
         const adminToken = localStorage.getItem('admin_token')
@@ -52,6 +80,64 @@ export default function AdminDashboard() {
         refetchOnMount: true,
         staleTime: 0,
     })
+
+    // Users data with pagination
+    const { data: usersData, isLoading: usersLoading } = useQuery({
+        queryKey: ['admin', 'users', page, search, roleFilter],
+        queryFn: async () => {
+            const response = await adminApi.getAllUsers({
+                page,
+                limit: 20,
+                search: search || undefined,
+                role: roleFilter || undefined,
+            })
+            return response.data
+        },
+        enabled: isAdmin,
+    })
+
+    // Delete user mutation
+    const deleteMutation = useMutation({
+        mutationFn: (userId: string) => adminApi.deleteUser(userId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
+            toast.success('User deleted successfully')
+        },
+        onError: () => {
+            toast.error('Failed to delete user')
+        },
+    })
+
+    // Update role mutation
+    const updateRoleMutation = useMutation({
+        mutationFn: ({ userId, role }: { userId: string; role: string }) =>
+            adminApi.updateUserRole(userId, role),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
+            toast.success('User role updated successfully')
+        },
+        onError: () => {
+            toast.error('Failed to update user role')
+        },
+    })
+
+    const handleViewDetails = (user: UserDetails) => {
+        setSelectedUser(user)
+        setShowDetailsDialog(true)
+    }
+
+    const handleDelete = async (userId: string, userName: string) => {
+        if (confirm(`Are you sure you want to delete ${userName}?`)) {
+            deleteMutation.mutate(userId)
+        }
+    }
+
+    const handleRoleChange = async (userId: string, currentRole: string) => {
+        const newRole = currentRole === 'ADMIN' ? 'STUDENT' : 'ADMIN'
+        if (confirm(`Change user role to ${newRole}?`)) {
+            updateRoleMutation.mutate({ userId, role: newRole })
+        }
+    }
 
     if (!isAdmin) {
         return (
@@ -242,6 +328,219 @@ export default function AdminDashboard() {
                         </div>
                     </CardContent>
                 </Card>
+            )}
+
+            {/* User Management Section */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-xl">User Management</CardTitle>
+                    <div className="flex gap-4 mt-4">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                            <Input
+                                placeholder="Search users..."
+                                value={search}
+                                onChange={(e) => {
+                                    setSearch(e.target.value)
+                                    setPage(1)
+                                }}
+                                className="pl-10"
+                            />
+                        </div>
+                        <select
+                            value={roleFilter}
+                            onChange={(e) => {
+                                setRoleFilter(e.target.value)
+                                setPage(1)
+                            }}
+                            className="px-4 py-2 bg-background border border-input rounded-md"
+                        >
+                            <option value="">All Roles</option>
+                            <option value="STUDENT">Students</option>
+                            <option value="ADMIN">Admins</option>
+                        </select>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    {usersLoading ? (
+                        <div className="text-center py-8">
+                            <p className="text-muted-foreground">Loading users...</p>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="overflow-x-auto">
+                                <table className="w-full">
+                                    <thead>
+                                        <tr className="border-b">
+                                            <th className="text-left p-3 font-medium">Name</th>
+                                            <th className="text-left p-3 font-medium">Email</th>
+                                            <th className="text-left p-3 font-medium">Department</th>
+                                            <th className="text-left p-3 font-medium">University</th>
+                                            <th className="text-left p-3 font-medium">Role</th>
+                                            <th className="text-left p-3 font-medium">Courses</th>
+                                            <th className="text-left p-3 font-medium">Points</th>
+                                            <th className="text-right p-3 font-medium">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {usersData?.users?.map((user: UserDetails) => (
+                                            <tr key={user.id} className="border-b hover:bg-muted/50">
+                                                <td className="p-3">
+                                                    <p className="font-medium">{user.firstName} {user.lastName}</p>
+                                                </td>
+                                                <td className="p-3 text-sm text-muted-foreground">{user.email}</td>
+                                                <td className="p-3 text-sm">{user.department}</td>
+                                                <td className="p-3 text-sm">{user.university}</td>
+                                                <td className="p-3">
+                                                    <span className={`text-xs px-2 py-1 rounded ${user.role === 'ADMIN'
+                                                            ? 'bg-red-500/10 text-red-500'
+                                                            : 'bg-cyan-500/10 text-cyan-500'
+                                                        }`}>
+                                                        {user.role}
+                                                    </span>
+                                                </td>
+                                                <td className="p-3 text-sm">{user._count?.courses || 0}</td>
+                                                <td className="p-3">
+                                                    <span className="font-semibold text-cyan-400">{user.points}</span>
+                                                </td>
+                                                <td className="p-3">
+                                                    <div className="flex gap-2 justify-end">
+                                                        <Button
+                                                            size="sm"
+                                                            variant="ghost"
+                                                            onClick={() => handleViewDetails(user)}
+                                                            title="View Details"
+                                                        >
+                                                            <Eye className="h-4 w-4" />
+                                                        </Button>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="ghost"
+                                                            onClick={() => handleRoleChange(user.id, user.role)}
+                                                            title="Change Role"
+                                                        >
+                                                            <Shield className="h-4 w-4" />
+                                                        </Button>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="ghost"
+                                                            onClick={() => handleDelete(user.id, `${user.firstName} ${user.lastName}`)}
+                                                            title="Delete User"
+                                                            className="text-red-500 hover:text-red-600"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Pagination */}
+                            {usersData && usersData.totalPages > 1 && (
+                                <div className="flex justify-between items-center mt-4">
+                                    <p className="text-sm text-muted-foreground">
+                                        Page {usersData.page} of {usersData.totalPages} ({usersData.total} total users)
+                                    </p>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                                            disabled={page === 1}
+                                        >
+                                            <ChevronLeft className="h-4 w-4" />
+                                            Previous
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setPage(p => Math.min(usersData.totalPages, p + 1))}
+                                            disabled={page === usersData.totalPages}
+                                        >
+                                            Next
+                                            <ChevronRight className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* User Details Modal */}
+            {selectedUser && showDetailsDialog && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowDetailsDialog(false)}>
+                    <div className="bg-background rounded-lg p-6 max-w-2xl w-full m-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex justify-between items-start mb-4">
+                            <div>
+                                <h2 className="text-2xl font-bold">{selectedUser.firstName} {selectedUser.lastName}</h2>
+                                <p className="text-muted-foreground">{selectedUser.email}</p>
+                            </div>
+                            <Button variant="ghost" size="sm" onClick={() => setShowDetailsDialog(false)}>✕</Button>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-sm font-medium text-muted-foreground">University</label>
+                                    <p className="text-base mt-1">{selectedUser.university || 'N/A'}</p>
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Department</label>
+                                    <p className="text-base mt-1">{selectedUser.department}</p>
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Faculty</label>
+                                    <p className="text-base mt-1">{selectedUser.faculty}</p>
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Level</label>
+                                    <p className="text-base mt-1">{selectedUser.level}</p>
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Matric Number</label>
+                                    <p className="text-base mt-1">{selectedUser.matricNumber || 'N/A'}</p>
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Role</label>
+                                    <p className="text-base mt-1">
+                                        <span className={`text-xs px-2 py-1 rounded ${selectedUser.role === 'ADMIN' ? 'bg-red-500/10 text-red-500' : 'bg-cyan-500/10 text-cyan-500'}`}>
+                                            {selectedUser.role}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Points</label>
+                                    <p className="text-2xl font-bold text-cyan-400 mt-1">{selectedUser.points}</p>
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Joined</label>
+                                    <p className="text-base mt-1">{new Date(selectedUser.createdAt).toLocaleDateString()}</p>
+                                </div>
+                            </div>
+
+                            {selectedUser._count && (
+                                <div className="border-t pt-4 mt-4">
+                                    <h3 className="font-semibold mb-3">Activity Statistics</h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-sm font-medium text-muted-foreground">Enrolled Courses</label>
+                                            <p className="text-2xl font-bold">{selectedUser._count.courses}</p>
+                                        </div>
+                                        <div>
+                                            <label className="text-sm font-medium text-muted-foreground">Quiz Attempts</label>
+                                            <p className="text-2xl font-bold">{selectedUser._count.quizAttempts}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     )
