@@ -460,4 +460,13 @@ export const adminApi = {
       totalAttempts: number;
       averageScore: number;
     }>("/admin/analytics/quizzes"),
+
+  seedDatabase: () =>
+    adminApiClient.post<{
+      success: boolean;
+      message: string;
+      output?: string;
+      errors?: string;
+      timestamp: string;
+    }>("/admin/seed-database"),
 };

@@ -121,6 +121,22 @@ export default function AdminDashboard() {
         },
     })
 
+    // Seed database mutation
+    const seedDatabaseMutation = useMutation({
+        mutationFn: () => adminApi.seedDatabase(),
+        onSuccess: (data) => {
+            if (data.success) {
+                queryClient.invalidateQueries({ queryKey: ['admin'] })
+                toast.success('Database reseeded successfully! 22 real university courses added.')
+            } else {
+                toast.error('Failed to reseed database: ' + data.message)
+            }
+        },
+        onError: (error: any) => {
+            toast.error('Error reseeding database: ' + (error.message || 'Unknown error'))
+        },
+    })
+
     const handleViewDetails = (user: UserDetails) => {
         setSelectedUser(user)
         setShowDetailsDialog(true)
@@ -166,12 +182,27 @@ export default function AdminDashboard() {
 
     return (
         <div className="space-y-6">
-            {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-                <p className="text-muted-foreground mt-1">
-                    Monitor platform activity and manage users
-                </p>
+            {/* Header with Reseed Button */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+                    <p className="text-muted-foreground mt-1">
+                        Monitor platform activity and manage users
+                    </p>
+                </div>
+                <Button
+                    onClick={() => {
+                        if (confirm('⚠️ WARNING: This will delete ALL existing data and reseed the database with 22 real university courses. Continue?')) {
+                            seedDatabaseMutation.mutate()
+                        }
+                    }}
+                    variant="destructive"
+                    disabled={seedDatabaseMutation.isPending}
+                    className="gap-2"
+                >
+                    <BookOpen className="h-4 w-4" />
+                    {seedDatabaseMutation.isPending ? 'Reseeding...' : 'Reseed Courses'}
+                </Button>
             </div>
 
             {/* Stats Cards */}

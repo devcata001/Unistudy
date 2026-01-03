@@ -1,6 +1,10 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { Role } from "@prisma/client";
+import { exec } from "child_process";
+import { promisify } from "util";
+
+const execAsync = promisify(exec);
 
 @Injectable()
 export class AdminService {
@@ -256,5 +260,33 @@ export class AdminService {
       totalAttempts,
       averageScore: averageScore._avg.score || 0,
     };
+  }
+
+  async seedDatabase() {
+    try {
+      // Run the seed script
+      const { stdout, stderr } = await execAsync("npx ts-node prisma/seed.ts", {
+        cwd: process.cwd(),
+        timeout: 60000, // 60 seconds timeout
+      });
+
+      return {
+        success: true,
+        message:
+          "Database reseeded successfully with 22 real university courses",
+        output: stdout,
+        errors: stderr || null,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: "Failed to seed database",
+        error: error.message,
+        stderr: error.stderr,
+        stdout: error.stdout,
+        timestamp: new Date().toISOString(),
+      };
+    }
   }
 }

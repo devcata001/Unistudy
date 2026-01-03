@@ -123,4 +123,15 @@ export class AdminController {
   async getQuizAnalytics() {
     return this.adminService.getQuizAnalytics();
   }
+
+  @Post("seed-database")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary:
+      "Reseed database with real courses (ADMIN ONLY - USE WITH CAUTION)",
+  })
+  async seedDatabase() {
+    return this.adminService.seedDatabase();
+  }
 }
