@@ -95,11 +95,11 @@ Keep it concise and focused on the most important information for exam preparati
     }
 
     return (
-        <div className="max-w-7xl mx-auto space-y-6">
+        <div className="max-w-7xl mx-auto space-y-6 px-4 sm:px-6">
             {/* Header */}
             <div>
-                <h1 className="text-3xl font-bold">Study Materials</h1>
-                <p className="text-muted-foreground mt-1">
+                <h1 className="text-2xl sm:text-3xl font-bold">Study Materials</h1>
+                <p className="text-muted-foreground mt-1 text-sm sm:text-base">
                     Access all your course materials in one place
                 </p>
             </div>
@@ -115,21 +115,21 @@ Keep it concise and focused on the most important information for exam preparati
 
                             return (
                                 <Card key={material.id}>
-                                    <CardContent className="p-6">
-                                        <div className="flex items-start justify-between">
-                                            <div className="flex items-start gap-4 flex-1">
-                                                <div className={`p-3 rounded-lg ${getTypeColor(material.type)}`}>
-                                                    <Icon className="h-5 w-5" />
+                                    <CardContent className="p-4 sm:p-6">
+                                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                                            <div className="flex items-start gap-3 sm:gap-4 flex-1">
+                                                <div className={`p-2 sm:p-3 rounded-lg ${getTypeColor(material.type)}`}>
+                                                    <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
                                                 </div>
-                                                <div className="flex-1">
-                                                    <h3 className="font-semibold text-lg">{material.title}</h3>
-                                                    <p className="text-sm text-muted-foreground mt-1">
+                                                <div className="flex-1 min-w-0">
+                                                    <h3 className="font-semibold text-base sm:text-lg truncate">{material.title}</h3>
+                                                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                                                         {material.type} • {new Date(material.createdAt).toLocaleDateString()}
                                                     </p>
 
                                                     {/* Summary Display */}
                                                     {isShowingSummary && generatedSummary && (
-                                                        <div className="mt-4 p-4 bg-secondary rounded-lg">
+                                                        <div className="mt-4 p-3 sm:p-4 bg-secondary rounded-lg">
                                                             <div className="flex items-center gap-2 mb-2">
                                                                 <Sparkles className="h-4 w-4 text-cyan-400" />
                                                                 <span className="text-sm font-medium">AI Summary</span>
@@ -137,16 +137,17 @@ Keep it concise and focused on the most important information for exam preparati
                                                             <Textarea
                                                                 value={generatedSummary}
                                                                 readOnly
-                                                                className="min-h-[200px] bg-background"
+                                                                className="min-h-[200px] bg-background text-sm"
                                                             />
                                                         </div>
                                                     )}
                                                 </div>
                                             </div>
-                                            <div className="flex gap-2 ml-4">
+                                            <div className="flex gap-2 sm:ml-4">
                                                 <Button
                                                     size="sm"
                                                     variant="outline"
+                                                    className="flex-1 sm:flex-none text-xs sm:text-sm"
                                                     onClick={() => {
                                                         if (isShowingSummary) {
                                                             setSummaryMaterialId(null)
@@ -160,24 +161,31 @@ Keep it concise and focused on the most important information for exam preparati
                                                     {summaryMutation.isPending && summaryMutation.variables === material.id ? (
                                                         <>
                                                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                                            Generating...
+                                                            <span className="hidden sm:inline">Generating...</span>
+                                                            <span className="sm:hidden">...</span>
                                                         </>
                                                     ) : isShowingSummary ? (
-                                                        'Hide Summary'
+                                                        <>
+                                                            <span className="hidden sm:inline">Hide Summary</span>
+                                                            <span className="sm:hidden">Hide</span>
+                                                        </>
                                                     ) : (
                                                         <>
-                                                            <Sparkles className="h-4 w-4 mr-2" />
-                                                            Generate Summary
+                                                            <Sparkles className="h-4 w-4 mr-1 sm:mr-2" />
+                                                            <span className="hidden sm:inline">Generate Summary</span>
+                                                            <span className="sm:hidden">Summary</span>
                                                         </>
                                                     )}
                                                 </Button>
                                                 {material.fileUrl && material.fileUrl.startsWith('http') && (
                                                     <Button
                                                         size="sm"
+                                                        className="flex-1 sm:flex-none"
                                                         onClick={() => window.open(material.fileUrl, '_blank')}
                                                     >
-                                                        <Download className="h-4 w-4 mr-2" />
-                                                        View
+                                                        <Download className="h-4 w-4 mr-1 sm:mr-2" />
+                                                        <span className="hidden sm:inline">View</span>
+                                                        <span className="sm:hidden">Open</span>
                                                     </Button>
                                                 )}
                                             </div>
