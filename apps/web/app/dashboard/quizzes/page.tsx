@@ -6,11 +6,13 @@ import { quizzesApi, usersApi } from '@/lib/api'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Trophy, Clock, CheckCircle, XCircle, Sparkles, ArrowRight } from 'lucide-react'
+import { Trophy, Clock, CheckCircle, XCircle, Sparkles, ArrowRight, BookOpen } from 'lucide-react'
 import { formatDateTime } from '@/lib/utils'
 import Link from 'next/link'
+import { useCourseCheck } from '@/hooks/useCourseCheck'
 
 export default function QuizzesPage() {
+    const { hasCourses, isLoading: checkingCourses } = useCourseCheck()
     const queryClient = useQueryClient()
     const [selectedCourseId, setSelectedCourseId] = useState<string>('')
     const [showGenerator, setShowGenerator] = useState(false)
@@ -70,6 +72,40 @@ export default function QuizzesPage() {
         e.preventDefault()
         if (!selectedCourseId) return
         generateMutation.mutate()
+    }
+
+    // Show registration prompt if user has no courses
+    if (checkingCourses) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <div className="animate-pulse text-muted-foreground">Loading...</div>
+            </div>
+        )
+    }
+
+    if (!hasCourses) {
+        return (
+            <div className="max-w-2xl mx-auto px-4">
+                <Card className="border-2 border-dashed">
+                    <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                        <div className="rounded-full bg-primary/10 p-4 mb-4">
+                            <BookOpen className="h-12 w-12 text-primary" />
+                        </div>
+                        <h2 className="text-2xl font-bold mb-2">Register a Course First</h2>
+                        <p className="text-muted-foreground mb-6 max-w-md">
+                            Quizzes are generated based on your enrolled courses.
+                            Register your first course to start testing your knowledge with AI-powered quizzes.
+                        </p>
+                        <Link href="/dashboard/courses">
+                            <Button size="lg">
+                                <BookOpen className="h-4 w-4 mr-2" />
+                                Browse Courses
+                            </Button>
+                        </Link>
+                    </CardContent>
+                </Card>
+            </div>
+        )
     }
 
     return (

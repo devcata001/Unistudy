@@ -6,9 +6,12 @@ import { aiApi, type AiMessage } from '@/lib/api'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Bot, Send, User, Plus, Trash2 } from 'lucide-react'
+import { Bot, Send, User, Plus, Trash2, BookOpen } from 'lucide-react'
+import { useCourseCheck } from '@/hooks/useCourseCheck'
+import Link from 'next/link'
 
 export default function AiTutorPage() {
+    const { hasCourses, isLoading: checkingCourses } = useCourseCheck()
     const [conversationId, setConversationId] = useState<string | null>(null)
     const [messages, setMessages] = useState<AiMessage[]>([
         {
@@ -99,6 +102,40 @@ export default function AiTutorPage() {
         setMessages((prev) => [...prev, userMessage])
         askMutation.mutate(input)
         setInput('')
+    }
+
+    // Show registration prompt if user has no courses
+    if (checkingCourses) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <div className="animate-pulse text-muted-foreground">Loading...</div>
+            </div>
+        )
+    }
+
+    if (!hasCourses) {
+        return (
+            <div className="max-w-2xl mx-auto px-4">
+                <Card className="border-2 border-dashed">
+                    <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                        <div className="rounded-full bg-primary/10 p-4 mb-4">
+                            <BookOpen className="h-12 w-12 text-primary" />
+                        </div>
+                        <h2 className="text-2xl font-bold mb-2">Register a Course First</h2>
+                        <p className="text-muted-foreground mb-6 max-w-md">
+                            The AI Tutor needs to know what subjects you're studying to provide personalized help.
+                            Register your first course to unlock this feature.
+                        </p>
+                        <Link href="/dashboard/courses">
+                            <Button size="lg">
+                                <BookOpen className="h-4 w-4 mr-2" />
+                                Browse Courses
+                            </Button>
+                        </Link>
+                    </CardContent>
+                </Card>
+            </div>
+        )
     }
 
     return (
