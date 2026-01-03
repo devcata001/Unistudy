@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import { materialsApi, usersApi, quizzesApi } from '@/lib/api'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CourseRegistrationModal } from '@/components/CourseRegistrationModal'
+import OnboardingGuide from '@/components/OnboardingGuide'
 import {
     Upload,
     Bot,
@@ -89,6 +90,8 @@ export default function DashboardPage() {
                 onClose={() => setShowCourseModal(false)}
                 courseCount={courseCount}
             />
+
+            <OnboardingGuide user={user} hasCourses={hasCourses} />
 
             <div className="max-w-7xl mx-auto space-y-8">
                 <div>

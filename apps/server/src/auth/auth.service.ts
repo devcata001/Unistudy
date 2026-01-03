@@ -82,6 +82,7 @@ export class AuthService {
         password: hashedPassword,
         firstName: dto.firstName,
         lastName: dto.lastName,
+        university: dto.university,
         department: dto.department,
         faculty: dto.faculty,
         level: dto.level,
