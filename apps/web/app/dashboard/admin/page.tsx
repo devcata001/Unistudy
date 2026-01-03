@@ -334,7 +334,7 @@ export default function AdminDashboard() {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-xl">User Management</CardTitle>
-                    <div className="flex gap-4 mt-4">
+                    <div className="flex flex-col sm:flex-row gap-3 mt-4">
                         <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                             <Input
@@ -353,7 +353,7 @@ export default function AdminDashboard() {
                                 setRoleFilter(e.target.value)
                                 setPage(1)
                             }}
-                            className="px-4 py-2 bg-background border border-input rounded-md"
+                            className="px-3 py-2 bg-background border border-input rounded-md text-sm w-full sm:w-auto"
                         >
                             <option value="">All Roles</option>
                             <option value="STUDENT">Students</option>
@@ -368,30 +368,31 @@ export default function AdminDashboard() {
                         </div>
                     ) : (
                         <>
-                            <div className="overflow-x-auto">
-                                <table className="w-full">
+                            <div className="overflow-x-auto -mx-6 px-6 md:mx-0 md:px-0">
+                                <table className="w-full min-w-[640px]">
                                     <thead>
                                         <tr className="border-b">
-                                            <th className="text-left p-3 font-medium">Name</th>
-                                            <th className="text-left p-3 font-medium">Email</th>
-                                            <th className="text-left p-3 font-medium">Department</th>
-                                            <th className="text-left p-3 font-medium">University</th>
-                                            <th className="text-left p-3 font-medium">Role</th>
-                                            <th className="text-left p-3 font-medium">Courses</th>
-                                            <th className="text-left p-3 font-medium">Points</th>
-                                            <th className="text-right p-3 font-medium">Actions</th>
+                                            <th className="text-left p-2 md:p-3 font-medium">Name</th>
+                                            <th className="text-left p-2 md:p-3 font-medium hidden sm:table-cell">Email</th>
+                                            <th className="text-left p-2 md:p-3 font-medium hidden lg:table-cell">Department</th>
+                                            <th className="text-left p-2 md:p-3 font-medium hidden xl:table-cell">University</th>
+                                            <th className="text-left p-2 md:p-3 font-medium">Role</th>
+                                            <th className="text-left p-2 md:p-3 font-medium hidden md:table-cell">Courses</th>
+                                            <th className="text-left p-2 md:p-3 font-medium hidden md:table-cell">Points</th>
+                                            <th className="text-right p-2 md:p-3 font-medium">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {usersData?.users?.map((user: UserDetails) => (
                                             <tr key={user.id} className="border-b hover:bg-muted/50">
-                                                <td className="p-3">
-                                                    <p className="font-medium">{user.firstName} {user.lastName}</p>
+                                                <td className="p-2 md:p-3">
+                                                    <p className="font-medium text-sm">{user.firstName} {user.lastName}</p>
+                                                    <p className="text-xs text-muted-foreground sm:hidden">{user.email}</p>
                                                 </td>
-                                                <td className="p-3 text-sm text-muted-foreground">{user.email}</td>
-                                                <td className="p-3 text-sm">{user.department}</td>
-                                                <td className="p-3 text-sm">{user.university || <span className="text-muted-foreground italic">Not set</span>}</td>
-                                                <td className="p-3">
+                                                <td className="p-2 md:p-3 text-sm text-muted-foreground hidden sm:table-cell">{user.email}</td>
+                                                <td className="p-2 md:p-3 text-sm hidden lg:table-cell">{user.department}</td>
+                                                <td className="p-2 md:p-3 text-sm hidden xl:table-cell">{user.university || <span className="text-muted-foreground italic">Not set</span>}</td>
+                                                <td className="p-2 md:p-3">
                                                     <span className={`text-xs px-2 py-1 rounded ${user.role === 'ADMIN'
                                                         ? 'bg-red-500/10 text-red-500'
                                                         : 'bg-cyan-500/10 text-cyan-500'
@@ -399,15 +400,16 @@ export default function AdminDashboard() {
                                                         {user.role}
                                                     </span>
                                                 </td>
-                                                <td className="p-3 text-sm">{user._count?.courses || 0}</td>
-                                                <td className="p-3">
-                                                    <span className="font-semibold text-cyan-400">{user.points}</span>
+                                                <td className="p-2 md:p-3 text-sm hidden md:table-cell">{user._count?.courses || 0}</td>
+                                                <td className="p-2 md:p-3 hidden md:table-cell">
+                                                    <span className="font-semibold text-cyan-400 text-sm">{user.points}</span>
                                                 </td>
-                                                <td className="p-3">
-                                                    <div className="flex gap-2 justify-end">
+                                                <td className="p-2 md:p-3">
+                                                    <div className="flex gap-1 justify-end">
                                                         <Button
                                                             size="sm"
                                                             variant="ghost"
+                                                            className="h-8 w-8 p-0"
                                                             onClick={() => handleViewDetails(user)}
                                                             title="View Details"
                                                         >
@@ -416,6 +418,7 @@ export default function AdminDashboard() {
                                                         <Button
                                                             size="sm"
                                                             variant="ghost"
+                                                            className="h-8 w-8 p-0 hidden sm:flex"
                                                             onClick={() => handleRoleChange(user.id, user.role)}
                                                             title="Change Role"
                                                         >
@@ -424,9 +427,9 @@ export default function AdminDashboard() {
                                                         <Button
                                                             size="sm"
                                                             variant="ghost"
+                                                            className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hidden sm:flex"
                                                             onClick={() => handleDelete(user.id, `${user.firstName} ${user.lastName}`)}
                                                             title="Delete User"
-                                                            className="text-red-500 hover:text-red-600"
                                                         >
                                                             <Trash2 className="h-4 w-4" />
                                                         </Button>
@@ -440,9 +443,9 @@ export default function AdminDashboard() {
 
                             {/* Pagination */}
                             {usersData && usersData.totalPages > 1 && (
-                                <div className="flex justify-between items-center mt-4">
-                                    <p className="text-sm text-muted-foreground">
-                                        Page {usersData.page} of {usersData.totalPages} ({usersData.total} total users)
+                                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
+                                    <p className="text-sm text-muted-foreground text-center sm:text-left">
+                                        Page {usersData.page} of {usersData.totalPages} ({usersData.total} users)
                                     </p>
                                     <div className="flex gap-2">
                                         <Button
@@ -450,17 +453,19 @@ export default function AdminDashboard() {
                                             size="sm"
                                             onClick={() => setPage(p => Math.max(1, p - 1))}
                                             disabled={page === 1}
+                                            className="text-xs sm:text-sm"
                                         >
                                             <ChevronLeft className="h-4 w-4" />
-                                            Previous
+                                            <span className="hidden sm:inline ml-1">Previous</span>
                                         </Button>
                                         <Button
                                             variant="outline"
                                             size="sm"
                                             onClick={() => setPage(p => Math.min(usersData.totalPages, p + 1))}
                                             disabled={page === usersData.totalPages}
+                                            className="text-xs sm:text-sm"
                                         >
-                                            Next
+                                            <span className="hidden sm:inline mr-1">Next</span>
                                             <ChevronRight className="h-4 w-4" />
                                         </Button>
                                     </div>
