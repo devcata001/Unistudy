@@ -134,4 +134,19 @@ export class AdminController {
   async seedDatabase() {
     return this.adminService.seedDatabase();
   }
+
+  @Post("initial-seed")
+  @ApiOperation({
+    summary: "Initial database seed (PUBLIC - for first-time setup only)",
+  })
+  async initialSeed(@Body() body: { secretKey: string }) {
+    // Simple secret key protection (not JWT, just for initial setup)
+    const expectedKey = "UNISTUDY_INIT_2026"; // You can change this
+
+    if (body.secretKey !== expectedKey) {
+      throw new Error("Invalid secret key");
+    }
+
+    return this.adminService.seedDatabase();
+  }
 }
