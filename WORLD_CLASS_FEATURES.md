@@ -1,6 +1,7 @@
 # World-Class Features Implementation Plan
 
 ## ✅ Already Implemented
+
 - Email service infrastructure
 - isEmailVerified field in User model
 - Password reset email templates
@@ -9,9 +10,11 @@
 ## 🚀 Priority 1 - Critical Features (Implement Now)
 
 ### 1. Email Verification System
+
 **Status:** Partially implemented, needs completion
 
 **Backend Tasks:**
+
 - [x] Email service exists
 - [x] Database field exists (isEmailVerified)
 - [ ] Create verification token table
@@ -21,12 +24,14 @@
 - [ ] Middleware to check email verification
 
 **Frontend Tasks:**
+
 - [ ] Verification page with token handling
 - [ ] Resend verification button
 - [ ] Email verification banner for unverified users
 - [ ] Prevent access to certain features until verified
 
 **Implementation:**
+
 ```typescript
 // Verification flow:
 1. User registers → Generate unique token → Send email
@@ -38,15 +43,18 @@
 ---
 
 ### 2. Compulsory Course Registration
+
 **Status:** Not implemented
 
 **Requirements:**
+
 - New users must register at least 1 course
 - Block access to AI tutor, quizzes until course registered
 - Show onboarding modal on first login
 - Guide users through course selection
 
 **Implementation:**
+
 ```typescript
 // Registration gate:
 1. Check user.courses.length on dashboard load
@@ -59,9 +67,11 @@
 ---
 
 ### 3. Responsive Design Overhaul
+
 **Status:** Partially responsive, needs improvement
 
 **Pages to Fix:**
+
 - [ ] Admin dashboard (table overflow)
 - [ ] Courses grid (mobile layout)
 - [ ] Materials list (card stacking)
@@ -71,6 +81,7 @@
 - [ ] Auth pages (centered forms)
 
 **Breakpoints:**
+
 ```css
 mobile: 640px
 tablet: 768px
@@ -83,6 +94,7 @@ wide: 1280px
 ## 🎯 Priority 2 - Enhanced Features
 
 ### 4. Onboarding Flow
+
 - Step 1: Email verification
 - Step 2: Complete profile (university, department, level)
 - Step 3: Register first course
@@ -90,12 +102,14 @@ wide: 1280px
 - Skip option (with warning)
 
 ### 5. Profile Completion Enforcement
+
 - Require university selection (from Nigerian universities list)
 - Require department and level
 - Show completion percentage
 - Remind on dashboard if incomplete
 
 ### 6. Course Registration Improvements
+
 - Search and filter courses
 - Show course prerequisites
 - Add to favorites
@@ -103,6 +117,7 @@ wide: 1280px
 - Enrollment limits per semester
 
 ### 7. Email Notifications
+
 - Welcome email on signup
 - Verification reminder (after 24h)
 - Course enrollment confirmation
@@ -111,6 +126,7 @@ wide: 1280px
 - Achievement unlocked emails
 
 ### 8. User Dashboard Enhancements
+
 - Progress tracking widget
 - Upcoming quizzes calendar
 - Recent materials accessed
@@ -122,6 +138,7 @@ wide: 1280px
 ## 🔐 Priority 3 - Security & Polish
 
 ### 9. Authentication Improvements
+
 - Password strength indicator
 - 2FA option (SMS/Authenticator)
 - Session management (device list)
@@ -129,6 +146,7 @@ wide: 1280px
 - Suspicious activity alerts
 
 ### 10. Data Validation
+
 - University must be from approved list
 - Department validation per university
 - Level validation (100-500)
@@ -136,6 +154,7 @@ wide: 1280px
 - Matric number format validation
 
 ### 11. Error Handling
+
 - User-friendly error messages
 - Retry mechanisms
 - Offline mode indicators
@@ -143,6 +162,7 @@ wide: 1280px
 - Toast notifications everywhere
 
 ### 12. Performance Optimization
+
 - Image optimization (Next.js Image)
 - Code splitting
 - Lazy loading
@@ -152,6 +172,7 @@ wide: 1280px
 ---
 
 ## 📊 Success Metrics
+
 - Email verification rate: Target 80%+
 - Course registration completion: Target 95%+
 - Mobile responsiveness score: Target 100%
@@ -163,6 +184,7 @@ wide: 1280px
 ## 🛠️ Implementation Order (This Week)
 
 ### Day 1: Email Verification
+
 - Create verification token model
 - Add verification endpoints
 - Build verification page
@@ -170,6 +192,7 @@ wide: 1280px
 - Test flow end-to-end
 
 ### Day 2: Compulsory Course Registration
+
 - Add course count check
 - Create onboarding modal
 - Build course selection UI
@@ -177,6 +200,7 @@ wide: 1280px
 - Test with new users
 
 ### Day 3: Responsive Design
+
 - Fix admin dashboard table
 - Optimize courses grid
 - Fix materials layout
@@ -184,6 +208,7 @@ wide: 1280px
 - Cross-browser testing
 
 ### Day 4: Profile Completion
+
 - Add completion check
 - Build reminder UI
 - Add university selector
@@ -191,6 +216,7 @@ wide: 1280px
 - Test edge cases
 
 ### Day 5: Polish & Testing
+
 - Add loading states
 - Improve error messages
 - Test all flows
@@ -200,6 +226,7 @@ wide: 1280px
 ---
 
 ## 📝 Notes
+
 - Use Resend for production emails (free tier: 3000 emails/month)
 - Add rate limiting on verification endpoint
 - Store verification tokens with expiry (24h)
