@@ -100,14 +100,13 @@ async function main() {
 
   console.log("✅ Created users");
 
-  // Create Real Nigerian University Courses (100-Level)
-  // Physics Courses
+  // Create 5 Essential 100-Level Courses (Only the 101s)
   const phy101 = await prisma.course.create({
     data: {
       code: "PHY101",
-      title: "General Physics I (Mechanics)",
+      title: "General Physics I",
       description:
-        "Space and time, units and dimensions, kinematics, Newton's laws of motion, work and energy, conservation laws, motion of systems of particles.",
+        "Introduction to mechanics, units and dimensions, kinematics, Newton's laws of motion, work and energy, conservation laws.",
       department: "Physics",
       faculty: "Faculty of Science",
       level: "100",
@@ -116,49 +115,6 @@ async function main() {
     },
   });
 
-  const phy102 = await prisma.course.create({
-    data: {
-      code: "PHY102",
-      title: "General Physics II (Electricity & Magnetism)",
-      description:
-        "Electrostatics, electric current and direct current circuits, electromagnetism, magnetic circuits, electromagnetic induction.",
-      department: "Physics",
-      faculty: "Faculty of Science",
-      level: "100",
-      semester: "Second Semester",
-      creditUnits: 3,
-    },
-  });
-
-  const phy107 = await prisma.course.create({
-    data: {
-      code: "PHY107",
-      title: "General Practical Physics I",
-      description:
-        "Experimental techniques, measurements and errors, vernier caliper, micrometer screw gauge, simple pendulum, Ohm's law verification.",
-      department: "Physics",
-      faculty: "Faculty of Science",
-      level: "100",
-      semester: "First Semester",
-      creditUnits: 1,
-    },
-  });
-
-  const phy108 = await prisma.course.create({
-    data: {
-      code: "PHY108",
-      title: "General Practical Physics II",
-      description:
-        "Continuation of PHY107. Advanced practical experiments in mechanics, electricity and magnetism.",
-      department: "Physics",
-      faculty: "Faculty of Science",
-      level: "100",
-      semester: "Second Semester",
-      creditUnits: 1,
-    },
-  });
-
-  // Chemistry Courses
   const chm101 = await prisma.course.create({
     data: {
       code: "CHM101",
@@ -173,49 +129,6 @@ async function main() {
     },
   });
 
-  const chm102 = await prisma.course.create({
-    data: {
-      code: "CHM102",
-      title: "General Chemistry II",
-      description:
-        "Electrochemistry, chemical kinetics, equilibrium, thermochemistry, organic chemistry introduction, aliphatic and aromatic compounds.",
-      department: "Chemistry",
-      faculty: "Faculty of Science",
-      level: "100",
-      semester: "Second Semester",
-      creditUnits: 3,
-    },
-  });
-
-  const chm107 = await prisma.course.create({
-    data: {
-      code: "CHM107",
-      title: "General Practical Chemistry I",
-      description:
-        "Laboratory techniques, qualitative analysis, volumetric analysis, preparation of solutions, acid-base titrations.",
-      department: "Chemistry",
-      faculty: "Faculty of Science",
-      level: "100",
-      semester: "First Semester",
-      creditUnits: 1,
-    },
-  });
-
-  const chm108 = await prisma.course.create({
-    data: {
-      code: "CHM108",
-      title: "General Practical Chemistry II",
-      description:
-        "Continuation of CHM107. Redox titrations, gravimetric analysis, organic chemistry practical.",
-      department: "Chemistry",
-      faculty: "Faculty of Science",
-      level: "100",
-      semester: "Second Semester",
-      creditUnits: 1,
-    },
-  });
-
-  // Biology Courses
   const bio101 = await prisma.course.create({
     data: {
       code: "BIO101",
@@ -230,55 +143,12 @@ async function main() {
     },
   });
 
-  const bio102 = await prisma.course.create({
-    data: {
-      code: "BIO102",
-      title: "General Biology II",
-      description:
-        "Ecology, animal behavior, human biology, plant physiology, microbiology introduction.",
-      department: "Biology",
-      faculty: "Faculty of Science",
-      level: "100",
-      semester: "Second Semester",
-      creditUnits: 3,
-    },
-  });
-
-  const bio107 = await prisma.course.create({
-    data: {
-      code: "BIO107",
-      title: "General Practical Biology I",
-      description:
-        "Microscopy, cell structure observation, plant and animal tissues, dissection techniques.",
-      department: "Biology",
-      faculty: "Faculty of Science",
-      level: "100",
-      semester: "First Semester",
-      creditUnits: 1,
-    },
-  });
-
-  const bio108 = await prisma.course.create({
-    data: {
-      code: "BIO108",
-      title: "General Practical Biology II",
-      description:
-        "Continuation of BIO107. Ecological field work, microbiology practical, physiological experiments.",
-      department: "Biology",
-      faculty: "Faculty of Science",
-      level: "100",
-      semester: "Second Semester",
-      creditUnits: 1,
-    },
-  });
-
-  // Mathematics Courses
   const mth101 = await prisma.course.create({
     data: {
       code: "MTH101",
-      title: "General Mathematics I (Algebra & Trigonometry)",
+      title: "General Mathematics I",
       description:
-        "Elementary set theory, real numbers, polynomials, trigonometric functions, logarithms, partial fractions, binomial theorem.",
+        "Elementary set theory, real numbers, algebra, trigonometry, polynomials, logarithms, binomial theorem.",
       department: "Mathematics",
       faculty: "Faculty of Science",
       level: "100",
@@ -287,25 +157,10 @@ async function main() {
     },
   });
 
-  const mth102 = await prisma.course.create({
-    data: {
-      code: "MTH102",
-      title: "General Mathematics II (Calculus)",
-      description:
-        "Functions, limits and continuity, differentiation, integration, applications of calculus, series and sequences.",
-      department: "Mathematics",
-      faculty: "Faculty of Science",
-      level: "100",
-      semester: "Second Semester",
-      creditUnits: 3,
-    },
-  });
-
-  // General Studies Courses
   const gst101 = await prisma.course.create({
     data: {
       code: "GST101",
-      title: "Use of English I",
+      title: "Use of English",
       description:
         "Communication skills in English, essay writing, comprehension, summary writing, oral communication.",
       department: "General Studies",
@@ -316,78 +171,8 @@ async function main() {
     },
   });
 
-  const gst102 = await prisma.course.create({
-    data: {
-      code: "GST102",
-      title: "Use of English II",
-      description:
-        "Advanced communication skills, technical writing, report writing, business communication, public speaking.",
-      department: "General Studies",
-      faculty: "All Faculties",
-      level: "100",
-      semester: "Second Semester",
-      creditUnits: 2,
-    },
-  });
-
-  const gst103 = await prisma.course.create({
-    data: {
-      code: "GST103",
-      title: "Nigerian Peoples and Culture",
-      description:
-        "Nigerian history, culture and traditions, ethnic groups, Nigerian economy, political system.",
-      department: "General Studies",
-      faculty: "All Faculties",
-      level: "100",
-      semester: "First Semester",
-      creditUnits: 2,
-    },
-  });
-
-  const gst104 = await prisma.course.create({
-    data: {
-      code: "GST104",
-      title: "History and Philosophy of Science",
-      description:
-        "Development of science, scientific method, relationship between science and society, ethics in science.",
-      department: "General Studies",
-      faculty: "All Faculties",
-      level: "100",
-      semester: "Second Semester",
-      creditUnits: 2,
-    },
-  });
-
-  const gns101 = await prisma.course.create({
-    data: {
-      code: "GNS101",
-      title: "Use of Library, Study Skills and ICT",
-      description:
-        "Library resources, research methods, information retrieval, computer basics, internet usage, MS Office applications.",
-      department: "General Studies",
-      faculty: "All Faculties",
-      level: "100",
-      semester: "First Semester",
-      creditUnits: 2,
-    },
-  });
-
-  const gns102 = await prisma.course.create({
-    data: {
-      code: "GNS102",
-      title: "Philosophy, Logic and Ideologies",
-      description:
-        "Introduction to philosophy, logical reasoning, critical thinking, major philosophical ideologies.",
-      department: "General Studies",
-      faculty: "All Faculties",
-      level: "100",
-      semester: "Second Semester",
-      creditUnits: 2,
-    },
-  });
-
   console.log(
-    "Created 22 real university courses (PHY, CHM, BIO, MTH, GST/GNS)"
+    "Created 5 essential courses (PHY101, CHM101, BIO101, MTH101, GST101)"
   );
 
   // Create Course Enrollments
@@ -426,16 +211,16 @@ async function main() {
   await prisma.courseEnrollment.create({
     data: {
       userId: student2.id,
-      courseId: mth102.id,
-      masteryPercentage: 55,
+      courseId: bio101.id,
+      masteryPercentage: 82,
     },
   });
 
   await prisma.courseEnrollment.create({
     data: {
       userId: student2.id,
-      courseId: bio101.id,
-      masteryPercentage: 82,
+      courseId: gst101.id,
+      masteryPercentage: 91,
     },
   });
 
@@ -459,16 +244,16 @@ async function main() {
 
   await prisma.material.create({
     data: {
-      title: "Calculus Introduction",
-      description: "Basic concepts of limits and differentiation",
+      title: "Organic Chemistry Basics",
+      description: "Introduction to carbon compounds and chemical bonding",
       type: MaterialType.TEXT,
-      fileUrl: "/uploads/calculus-intro.txt",
+      fileUrl: "/uploads/organic-chemistry.txt",
       fileSize: 512000,
       mimeType: "text/plain",
-      extractedText: "Limits, derivatives, and continuity...",
-      courseId: mth102.id,
+      extractedText: "Carbon compounds, bonding, and molecular structure...",
+      courseId: chm101.id,
       uploadedById: student2.id,
-      tags: ["mathematics", "calculus", "derivatives"],
+      tags: ["chemistry", "organic", "bonding"],
     },
   });
 
@@ -633,8 +418,8 @@ async function main() {
   console.log("\n🎉 Seed completed successfully!");
   console.log("\n📊 Created:");
   console.log("   - 3 Users (1 admin, 2 students)");
-  console.log("   - 22 Courses (PHY, CHM, BIO, MTH, GST/GNS)");
-  console.log("   - 4 Course Enrollments");
+  console.log("   - 5 Courses (PHY101, CHM101, BIO101, MTH101, GST101)");
+  console.log("   - 6 Course Enrollments");
   console.log("   - 2 Study Materials");
   console.log("   - 5 Badges");
   console.log("   - 1 Quiz with 2 Questions");
