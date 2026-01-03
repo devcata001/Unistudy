@@ -1,10 +1,18 @@
-import { PrismaClient, AuthProvider, Role, StudyRank, MaterialType, QuizDifficulty, BadgeType } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+import {
+  PrismaClient,
+  AuthProvider,
+  Role,
+  StudyRank,
+  MaterialType,
+  QuizDifficulty,
+  BadgeType,
+} from "@prisma/client";
+import * as bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting database seed...');
+  console.log("🌱 Starting database seed...");
 
   // Clean existing data (be careful in production!)
   await prisma.aIMessage.deleteMany();
@@ -26,23 +34,23 @@ async function main() {
   await prisma.course.deleteMany();
   await prisma.user.deleteMany();
 
-  console.log('✅ Cleaned existing data');
+  console.log("✅ Cleaned existing data");
 
   // Create Users
-  const hashedPassword = await bcrypt.hash('Password123!', 12);
+  const hashedPassword = await bcrypt.hash("Password123!", 12);
 
   const admin = await prisma.user.create({
     data: {
-      email: 'admin@lautech.edu.ng',
+      email: "admin@lautech.edu.ng",
       password: hashedPassword,
-      firstName: 'Admin',
-      lastName: 'User',
+      firstName: "Admin",
+      lastName: "User",
       role: Role.ADMIN,
       authProvider: AuthProvider.LOCAL,
       isEmailVerified: true,
-      department: 'Computer Science',
-      faculty: 'Faculty of Engineering',
-      level: '400',
+      department: "Computer Science",
+      faculty: "Faculty of Engineering",
+      level: "400",
       points: 5000,
       currentStreak: 15,
       longestStreak: 30,
@@ -52,17 +60,17 @@ async function main() {
 
   const student1 = await prisma.user.create({
     data: {
-      email: 'john.doe@lautech.edu.ng',
+      email: "john.doe@lautech.edu.ng",
       password: hashedPassword,
-      firstName: 'John',
-      lastName: 'Doe',
+      firstName: "John",
+      lastName: "Doe",
       role: Role.STUDENT,
       authProvider: AuthProvider.LOCAL,
       isEmailVerified: true,
-      department: 'Computer Science',
-      faculty: 'Faculty of Engineering',
-      level: '400',
-      matricNumber: 'CSC/2020/001',
+      department: "Computer Science",
+      faculty: "Faculty of Engineering",
+      level: "400",
+      matricNumber: "CSC/2020/001",
       points: 1250,
       currentStreak: 7,
       longestStreak: 12,
@@ -72,17 +80,17 @@ async function main() {
 
   const student2 = await prisma.user.create({
     data: {
-      email: 'jane.smith@lautech.edu.ng',
+      email: "jane.smith@lautech.edu.ng",
       password: hashedPassword,
-      firstName: 'Jane',
-      lastName: 'Smith',
+      firstName: "Jane",
+      lastName: "Smith",
       role: Role.STUDENT,
       authProvider: AuthProvider.LOCAL,
       isEmailVerified: true,
-      department: 'Mathematics',
-      faculty: 'Faculty of Pure and Applied Sciences',
-      level: '300',
-      matricNumber: 'MTH/2021/045',
+      department: "Mathematics",
+      faculty: "Faculty of Pure and Applied Sciences",
+      level: "300",
+      matricNumber: "MTH/2021/045",
       points: 890,
       currentStreak: 3,
       longestStreak: 8,
@@ -90,68 +98,303 @@ async function main() {
     },
   });
 
-  console.log('✅ Created users');
+  console.log("✅ Created users");
 
-  // Create Courses
-  const csc301 = await prisma.course.create({
+  // Create Real Nigerian University Courses (100-Level)
+  // Physics Courses
+  const phy101 = await prisma.course.create({
     data: {
-      code: 'CSC301',
-      title: 'Data Structures & Algorithms',
-      description: 'Introduction to data structures, algorithm analysis, and problem-solving techniques.',
-      department: 'Computer Science',
-      faculty: 'Faculty of Engineering',
-      level: '300',
-      semester: 'First Semester',
+      code: "PHY101",
+      title: "General Physics I (Mechanics)",
+      description:
+        "Space and time, units and dimensions, kinematics, Newton's laws of motion, work and energy, conservation laws, motion of systems of particles.",
+      department: "Physics",
+      faculty: "Faculty of Science",
+      level: "100",
+      semester: "First Semester",
       creditUnits: 3,
     },
   });
 
-  const csc302 = await prisma.course.create({
+  const phy102 = await prisma.course.create({
     data: {
-      code: 'CSC302',
-      title: 'Database Management Systems',
-      description: 'Database design, SQL, normalization, and database administration.',
-      department: 'Computer Science',
-      faculty: 'Faculty of Engineering',
-      level: '300',
-      semester: 'Second Semester',
+      code: "PHY102",
+      title: "General Physics II (Electricity & Magnetism)",
+      description:
+        "Electrostatics, electric current and direct current circuits, electromagnetism, magnetic circuits, electromagnetic induction.",
+      department: "Physics",
+      faculty: "Faculty of Science",
+      level: "100",
+      semester: "Second Semester",
       creditUnits: 3,
     },
   });
 
-  const mth201 = await prisma.course.create({
+  const phy107 = await prisma.course.create({
     data: {
-      code: 'MTH201',
-      title: 'Linear Algebra',
-      description: 'Vector spaces, matrices, linear transformations, eigenvalues and eigenvectors.',
-      department: 'Mathematics',
-      faculty: 'Faculty of Pure and Applied Sciences',
-      level: '200',
-      semester: 'First Semester',
+      code: "PHY107",
+      title: "General Practical Physics I",
+      description:
+        "Experimental techniques, measurements and errors, vernier caliper, micrometer screw gauge, simple pendulum, Ohm's law verification.",
+      department: "Physics",
+      faculty: "Faculty of Science",
+      level: "100",
+      semester: "First Semester",
+      creditUnits: 1,
+    },
+  });
+
+  const phy108 = await prisma.course.create({
+    data: {
+      code: "PHY108",
+      title: "General Practical Physics II",
+      description:
+        "Continuation of PHY107. Advanced practical experiments in mechanics, electricity and magnetism.",
+      department: "Physics",
+      faculty: "Faculty of Science",
+      level: "100",
+      semester: "Second Semester",
+      creditUnits: 1,
+    },
+  });
+
+  // Chemistry Courses
+  const chm101 = await prisma.course.create({
+    data: {
+      code: "CHM101",
+      title: "General Chemistry I",
+      description:
+        "Atomic structure, periodic table, chemical bonding, states of matter, chemical reactions, stoichiometry, acids and bases.",
+      department: "Chemistry",
+      faculty: "Faculty of Science",
+      level: "100",
+      semester: "First Semester",
       creditUnits: 3,
     },
   });
 
-  const mth202 = await prisma.course.create({
+  const chm102 = await prisma.course.create({
     data: {
-      code: 'MTH202',
-      title: 'Calculus II',
-      description: 'Integration techniques, sequences and series, multivariable calculus.',
-      department: 'Mathematics',
-      faculty: 'Faculty of Pure and Applied Sciences',
-      level: '200',
-      semester: 'Second Semester',
-      creditUnits: 4,
+      code: "CHM102",
+      title: "General Chemistry II",
+      description:
+        "Electrochemistry, chemical kinetics, equilibrium, thermochemistry, organic chemistry introduction, aliphatic and aromatic compounds.",
+      department: "Chemistry",
+      faculty: "Faculty of Science",
+      level: "100",
+      semester: "Second Semester",
+      creditUnits: 3,
     },
   });
 
-  console.log('✅ Created courses');
+  const chm107 = await prisma.course.create({
+    data: {
+      code: "CHM107",
+      title: "General Practical Chemistry I",
+      description:
+        "Laboratory techniques, qualitative analysis, volumetric analysis, preparation of solutions, acid-base titrations.",
+      department: "Chemistry",
+      faculty: "Faculty of Science",
+      level: "100",
+      semester: "First Semester",
+      creditUnits: 1,
+    },
+  });
+
+  const chm108 = await prisma.course.create({
+    data: {
+      code: "CHM108",
+      title: "General Practical Chemistry II",
+      description:
+        "Continuation of CHM107. Redox titrations, gravimetric analysis, organic chemistry practical.",
+      department: "Chemistry",
+      faculty: "Faculty of Science",
+      level: "100",
+      semester: "Second Semester",
+      creditUnits: 1,
+    },
+  });
+
+  // Biology Courses
+  const bio101 = await prisma.course.create({
+    data: {
+      code: "BIO101",
+      title: "General Biology I",
+      description:
+        "Cell biology, genetics, evolution, diversity of life, plant and animal structure and function.",
+      department: "Biology",
+      faculty: "Faculty of Science",
+      level: "100",
+      semester: "First Semester",
+      creditUnits: 3,
+    },
+  });
+
+  const bio102 = await prisma.course.create({
+    data: {
+      code: "BIO102",
+      title: "General Biology II",
+      description:
+        "Ecology, animal behavior, human biology, plant physiology, microbiology introduction.",
+      department: "Biology",
+      faculty: "Faculty of Science",
+      level: "100",
+      semester: "Second Semester",
+      creditUnits: 3,
+    },
+  });
+
+  const bio107 = await prisma.course.create({
+    data: {
+      code: "BIO107",
+      title: "General Practical Biology I",
+      description:
+        "Microscopy, cell structure observation, plant and animal tissues, dissection techniques.",
+      department: "Biology",
+      faculty: "Faculty of Science",
+      level: "100",
+      semester: "First Semester",
+      creditUnits: 1,
+    },
+  });
+
+  const bio108 = await prisma.course.create({
+    data: {
+      code: "BIO108",
+      title: "General Practical Biology II",
+      description:
+        "Continuation of BIO107. Ecological field work, microbiology practical, physiological experiments.",
+      department: "Biology",
+      faculty: "Faculty of Science",
+      level: "100",
+      semester: "Second Semester",
+      creditUnits: 1,
+    },
+  });
+
+  // Mathematics Courses
+  const mth101 = await prisma.course.create({
+    data: {
+      code: "MTH101",
+      title: "General Mathematics I (Algebra & Trigonometry)",
+      description:
+        "Elementary set theory, real numbers, polynomials, trigonometric functions, logarithms, partial fractions, binomial theorem.",
+      department: "Mathematics",
+      faculty: "Faculty of Science",
+      level: "100",
+      semester: "First Semester",
+      creditUnits: 3,
+    },
+  });
+
+  const mth102 = await prisma.course.create({
+    data: {
+      code: "MTH102",
+      title: "General Mathematics II (Calculus)",
+      description:
+        "Functions, limits and continuity, differentiation, integration, applications of calculus, series and sequences.",
+      department: "Mathematics",
+      faculty: "Faculty of Science",
+      level: "100",
+      semester: "Second Semester",
+      creditUnits: 3,
+    },
+  });
+
+  // General Studies Courses
+  const gst101 = await prisma.course.create({
+    data: {
+      code: "GST101",
+      title: "Use of English I",
+      description:
+        "Communication skills in English, essay writing, comprehension, summary writing, oral communication.",
+      department: "General Studies",
+      faculty: "All Faculties",
+      level: "100",
+      semester: "First Semester",
+      creditUnits: 2,
+    },
+  });
+
+  const gst102 = await prisma.course.create({
+    data: {
+      code: "GST102",
+      title: "Use of English II",
+      description:
+        "Advanced communication skills, technical writing, report writing, business communication, public speaking.",
+      department: "General Studies",
+      faculty: "All Faculties",
+      level: "100",
+      semester: "Second Semester",
+      creditUnits: 2,
+    },
+  });
+
+  const gst103 = await prisma.course.create({
+    data: {
+      code: "GST103",
+      title: "Nigerian Peoples and Culture",
+      description:
+        "Nigerian history, culture and traditions, ethnic groups, Nigerian economy, political system.",
+      department: "General Studies",
+      faculty: "All Faculties",
+      level: "100",
+      semester: "First Semester",
+      creditUnits: 2,
+    },
+  });
+
+  const gst104 = await prisma.course.create({
+    data: {
+      code: "GST104",
+      title: "History and Philosophy of Science",
+      description:
+        "Development of science, scientific method, relationship between science and society, ethics in science.",
+      department: "General Studies",
+      faculty: "All Faculties",
+      level: "100",
+      semester: "Second Semester",
+      creditUnits: 2,
+    },
+  });
+
+  const gns101 = await prisma.course.create({
+    data: {
+      code: "GNS101",
+      title: "Use of Library, Study Skills and ICT",
+      description:
+        "Library resources, research methods, information retrieval, computer basics, internet usage, MS Office applications.",
+      department: "General Studies",
+      faculty: "All Faculties",
+      level: "100",
+      semester: "First Semester",
+      creditUnits: 2,
+    },
+  });
+
+  const gns102 = await prisma.course.create({
+    data: {
+      code: "GNS102",
+      title: "Philosophy, Logic and Ideologies",
+      description:
+        "Introduction to philosophy, logical reasoning, critical thinking, major philosophical ideologies.",
+      department: "General Studies",
+      faculty: "All Faculties",
+      level: "100",
+      semester: "Second Semester",
+      creditUnits: 2,
+    },
+  });
+
+  console.log(
+    "Created 22 real university courses (PHY, CHM, BIO, MTH, GST/GNS)"
+  );
 
   // Create Course Enrollments
   await prisma.courseEnrollment.create({
     data: {
       userId: student1.id,
-      courseId: csc301.id,
+      courseId: phy101.id,
       masteryPercentage: 85,
     },
   });
@@ -159,15 +402,15 @@ async function main() {
   await prisma.courseEnrollment.create({
     data: {
       userId: student1.id,
-      courseId: csc302.id,
+      courseId: mth101.id,
       masteryPercentage: 72,
     },
   });
 
   await prisma.courseEnrollment.create({
     data: {
-      userId: student2.id,
-      courseId: mth201.id,
+      userId: student1.id,
+      courseId: chm101.id,
       masteryPercentage: 68,
     },
   });
@@ -175,81 +418,97 @@ async function main() {
   await prisma.courseEnrollment.create({
     data: {
       userId: student2.id,
-      courseId: mth202.id,
+      courseId: mth101.id,
+      masteryPercentage: 78,
+    },
+  });
+
+  await prisma.courseEnrollment.create({
+    data: {
+      userId: student2.id,
+      courseId: mth102.id,
       masteryPercentage: 55,
     },
   });
 
-  console.log('✅ Created enrollments');
+  await prisma.courseEnrollment.create({
+    data: {
+      userId: student2.id,
+      courseId: bio101.id,
+      masteryPercentage: 82,
+    },
+  });
+
+  console.log("✅ Created enrollments");
 
   // Create Sample Materials
   await prisma.material.create({
     data: {
-      title: 'Introduction to Binary Trees',
-      description: 'Comprehensive guide to binary tree data structures',
+      title: "Introduction to Mechanics",
+      description: "Comprehensive notes on Newton's laws and motion",
       type: MaterialType.PDF,
-      fileUrl: '/uploads/binary-trees.pdf',
+      fileUrl: "/uploads/mechanics-notes.pdf",
       fileSize: 2048000,
-      mimeType: 'application/pdf',
-      extractedText: 'Binary trees are hierarchical data structures...',
-      courseId: csc301.id,
+      mimeType: "application/pdf",
+      extractedText: "Newton's laws state that...",
+      courseId: phy101.id,
       uploadedById: student1.id,
-      tags: ['data-structures', 'trees', 'algorithms'],
+      tags: ["physics", "mechanics", "newton"],
     },
   });
 
   await prisma.material.create({
     data: {
-      title: 'SQL Query Basics',
-      description: 'Introduction to SQL queries and database operations',
+      title: "Calculus Introduction",
+      description: "Basic concepts of limits and differentiation",
       type: MaterialType.TEXT,
-      fileUrl: '/uploads/sql-basics.txt',
+      fileUrl: "/uploads/calculus-intro.txt",
       fileSize: 512000,
-      mimeType: 'text/plain',
-      extractedText: 'SELECT, INSERT, UPDATE, DELETE operations...',
-      courseId: csc302.id,
-      uploadedById: student1.id,
-      tags: ['sql', 'database', 'queries'],
+      mimeType: "text/plain",
+      extractedText: "Limits, derivatives, and continuity...",
+      courseId: mth102.id,
+      uploadedById: student2.id,
+      tags: ["mathematics", "calculus", "derivatives"],
     },
   });
 
-  console.log('✅ Created materials');
+  console.log("✅ Created materials");
 
   // Create Badges
   const badges = [
     {
-      name: 'Week Warrior',
-      description: 'Maintain a 7-day study streak',
+      name: "Week Warrior",
+      description: "Maintain a 7-day study streak",
       type: BadgeType.STREAK,
-      icon: '🔥',
+      icon: "🔥",
       requiredValue: 7,
     },
     {
-      name: 'Quiz Master',
-      description: 'Score 100% on any quiz',
+      name: "Quiz Master",
+      description: "Score 100% on any quiz",
       type: BadgeType.QUIZ_MASTER,
-      icon: '🎯',
+      icon: "🎯",
       requiredValue: 100,
     },
     {
-      name: 'Early Bird',
-      description: 'Study before 9 AM',
+      name: "Early Bird",
+      description: "Study before 9 AM",
       type: BadgeType.EARLY_BIRD,
-      icon: '🌅',
+      icon: "🌅",
       requiredValue: 1,
     },
     {
-      name: 'Night Owl',
-      description: 'Study after 10 PM',
+      name: "Night Owl",
+      description: "Study after 10 PM",
       type: BadgeType.NIGHT_OWL,
-      icon: '🌙',
+      icon: "🌙",
       requiredValue: 1,
     },
     {
-      name: 'Study Warrior',
-      description: 'Complete 50 study sessions',
+      name: "Study Warrior",
+      description: "Complete 50 study sessions",
       type: BadgeType.STUDY_WARRIOR,
-      icon: '⚔️',
+      icon: "⚔️",
       requiredValue: 50,
     },
   ];
@@ -258,7 +517,7 @@ async function main() {
     await prisma.badge.create({ data: badge });
   }
 
-  console.log('✅ Created badges');
+  console.log("✅ Created badges");
 
   // Award a badge to student
   const weekWarriorBadge = await prisma.badge.findFirst({
@@ -274,14 +533,14 @@ async function main() {
     });
   }
 
-  console.log('✅ Awarded badges');
+  console.log("✅ Awarded badges");
 
   // Create a Quiz
   const quiz = await prisma.quiz.create({
     data: {
-      title: 'Binary Trees Quiz',
-      description: 'Test your knowledge of binary tree data structures',
-      courseId: csc301.id,
+      title: "Physics Mechanics Quiz",
+      description: "Test your knowledge of Newton's laws and motion",
+      courseId: phy101.id,
       difficulty: QuizDifficulty.MEDIUM,
       timeLimit: 30,
       passingScore: 70,
@@ -289,32 +548,52 @@ async function main() {
       questions: {
         create: [
           {
-            question: 'What is the maximum number of children a node can have in a binary tree?',
-            questionType: 'multiple_choice',
+            question: "What is Newton's first law of motion?",
+            questionType: "multiple_choice",
             points: 1,
             order: 1,
-            explanation: 'In a binary tree, each node can have at most 2 children.',
+            explanation:
+              "Newton's first law states that an object at rest stays at rest and an object in motion stays in motion unless acted upon by an external force.",
             answers: {
               create: [
-                { answerText: '2', isCorrect: true, order: 1 },
-                { answerText: '1', isCorrect: false, order: 2 },
-                { answerText: '3', isCorrect: false, order: 3 },
-                { answerText: 'Unlimited', isCorrect: false, order: 4 },
+                {
+                  answerText:
+                    "An object at rest stays at rest unless acted upon by force",
+                  isCorrect: true,
+                  order: 1,
+                },
+                {
+                  answerText: "Force equals mass times acceleration",
+                  isCorrect: false,
+                  order: 2,
+                },
+                {
+                  answerText: "Every action has an equal and opposite reaction",
+                  isCorrect: false,
+                  order: 3,
+                },
+                {
+                  answerText: "Energy is conserved",
+                  isCorrect: false,
+                  order: 4,
+                },
               ],
             },
           },
           {
-            question: 'What is the time complexity of searching in a balanced binary search tree?',
-            questionType: 'multiple_choice',
+            question:
+              "What is the formula for force according to Newton's second law?",
+            questionType: "multiple_choice",
             points: 1,
             order: 2,
-            explanation: 'In a balanced BST, search operations take O(log n) time.',
+            explanation:
+              "Newton's second law states that Force = Mass × Acceleration (F = ma).",
             answers: {
               create: [
-                { answerText: 'O(log n)', isCorrect: true, order: 1 },
-                { answerText: 'O(n)', isCorrect: false, order: 2 },
-                { answerText: 'O(1)', isCorrect: false, order: 3 },
-                { answerText: 'O(n²)', isCorrect: false, order: 4 },
+                { answerText: "F = ma", isCorrect: true, order: 1 },
+                { answerText: "F = mv", isCorrect: false, order: 2 },
+                { answerText: "F = m/a", isCorrect: false, order: 3 },
+                { answerText: "F = a/m", isCorrect: false, order: 4 },
               ],
             },
           },
@@ -323,17 +602,17 @@ async function main() {
     },
   });
 
-  console.log('✅ Created quiz');
+  console.log("✅ Created quiz");
 
   // Create Study Sessions
   await prisma.studySession.create({
     data: {
       userId: student1.id,
-      courseId: csc301.id,
+      courseId: phy101.id,
       duration: 45,
       pointsEarned: 180,
       activitiesCount: 5,
-      sessionType: 'study',
+      sessionType: "study",
       startedAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // Yesterday
     },
   });
@@ -341,34 +620,34 @@ async function main() {
   await prisma.studySession.create({
     data: {
       userId: student1.id,
-      courseId: csc301.id,
+      courseId: mth101.id,
       duration: 30,
       pointsEarned: 120,
       activitiesCount: 3,
-      sessionType: 'quiz',
+      sessionType: "quiz",
     },
   });
 
-  console.log('✅ Created study sessions');
+  console.log("✅ Created study sessions");
 
-  console.log('\n🎉 Seed completed successfully!');
-  console.log('\n📊 Created:');
-  console.log('   - 3 Users (1 admin, 2 students)');
-  console.log('   - 4 Courses');
-  console.log('   - 4 Course Enrollments');
-  console.log('   - 2 Study Materials');
-  console.log('   - 5 Badges');
-  console.log('   - 1 Quiz with 2 Questions');
-  console.log('   - 2 Study Sessions');
-  console.log('\n🔐 Test Credentials:');
-  console.log('   Admin: admin@lautech.edu.ng / Password123!');
-  console.log('   Student 1: john.doe@lautech.edu.ng / Password123!');
-  console.log('   Student 2: jane.smith@lautech.edu.ng / Password123!');
+  console.log("\n🎉 Seed completed successfully!");
+  console.log("\n📊 Created:");
+  console.log("   - 3 Users (1 admin, 2 students)");
+  console.log("   - 22 Courses (PHY, CHM, BIO, MTH, GST/GNS)");
+  console.log("   - 4 Course Enrollments");
+  console.log("   - 2 Study Materials");
+  console.log("   - 5 Badges");
+  console.log("   - 1 Quiz with 2 Questions");
+  console.log("   - 2 Study Sessions");
+  console.log("\n🔐 Test Credentials:");
+  console.log("   Admin: admin@lautech.edu.ng / Password123!");
+  console.log("   Student 1: john.doe@lautech.edu.ng / Password123!");
+  console.log("   Student 2: jane.smith@lautech.edu.ng / Password123!");
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Seed failed:', e);
+    console.error("❌ Seed failed:", e);
     process.exit(1);
   })
   .finally(async () => {
