@@ -251,6 +251,8 @@ export const authApi = {
     api.post("/auth/reset-password", { token, password }),
 
   verifyEmail: (token: string) => api.post("/auth/verify-email", { token }),
+
+  resendVerification: () => api.post("/auth/resend-verification"),
 };
 
 // Users API

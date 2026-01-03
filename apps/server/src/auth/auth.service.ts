@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   ConflictException,
   BadRequestException,
+  NotFoundException,
   Logger,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
@@ -240,6 +241,45 @@ export class AuthService {
     this.logger.log(`Email verified for user: ${user.email}`);
 
     return { message: "Email verified successfully" };
+  }
+
+  /**
+   * Resend email verification
+   */
+  async resendVerificationEmail(userId: string): Promise<{ message: string }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+
+    if (user.isEmailVerified) {
+      throw new BadRequestException("Email already verified");
+    }
+
+    // Generate new token
+    const verificationToken = randomBytes(32).toString("hex");
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24);
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        emailVerificationToken: verificationToken,
+        emailVerificationExpiry: expiresAt,
+      },
+    });
+
+    await this.emailService.sendVerificationEmail(
+      user.email,
+      verificationToken
+    );
+
+    this.logger.log(`Verification email resent to: ${user.email}`);
+
+    return { message: "Verification email sent" };
   }
 
   /**
